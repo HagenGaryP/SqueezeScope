@@ -10,6 +10,7 @@ export default function NavBar() {
         <Navbar.Collapse>
           <Nav className="me-auto">
             <Nav.Link as={NavLink} to="/screener">Screener</Nav.Link>
+            <Nav.Link as={NavLink} to="/watchlists">Watchlist</Nav.Link>
           </Nav>
         </Navbar.Collapse>
       </Container>
