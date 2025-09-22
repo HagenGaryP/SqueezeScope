@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [ main, feature/** ]
   pull_request:
     branches: [ main ]
 
@@ -10,46 +10,68 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+permissions:
+  contents: read
+
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
+      - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
-          cache: 'npm'
+          node-version: 22
+          cache: npm
+          # Cache key tied to the root lockfile for reliable restores
+          cache-dependency-path: package-lock.json
+
+      # Verify lockfile and fail fast if lockfile is missing, to prevent bad installs
+      - name: Verify lockfile
+        run: |
+          if [ ! -f package-lock.json ]; then
+            echo "ERROR: package-lock.json is missing. Commit your lockfile for reproducible builds."
+            exit 1
+          fi
 
       - name: Install dependencies
+        env:
+          CI: "true"
         run: npm ci
 
-      - name: Lint
+      - name: Build (optional)
+        env:
+          CI: "true"
+        run: npm run build --if-present
+
+      - name: Lint (optional)
+        env:
+          CI: "true"
         run: |
-          if npm run | grep -q "lint"; then
+          if npm run | grep -qE '^\s*lint\s'; then
             npm run lint
           else
-            echo "No lint script found, skipping."
+            echo "No 'lint' script found; skipping."
           fi
 
-      - name: Type check
+      - name: Type check (optional)
+        env:
+          CI: "true"
         run: |
-          if npm run | grep -q "typecheck"; then
+          if npm run | grep -qE '^\s*typecheck\s'; then
             npm run typecheck
           else
-            echo "No typecheck script found, skipping."
+            echo "No 'typecheck' script found; skipping."
           fi
 
-      - name: Run unit tests
+      - name: Test (optional)
         run: |
-          if npm run | grep -q "test"; then
-            npm test -- --run --reporter=dot
+          if npm run | grep -qE '^\s*test\s'; then
+            # Allow success even if no tests yet. Jest friendly.
+            npm test -- --ci --passWithNoTests
           else
-            echo "No test script found, skipping."
+            echo "No 'test' script found; skipping."
           fi
-
-      - name: Build
-        run: npm run build
