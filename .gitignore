@@ -31,8 +31,3 @@ Thumbs.db
 *.njsproj
 *.sln
 *.sw?
-
-# Lock files
-package-lock.json
-yarn.lock
-pnpm-lock.yaml
