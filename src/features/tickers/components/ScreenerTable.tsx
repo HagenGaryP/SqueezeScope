@@ -33,11 +33,27 @@ export default function ScreenerTable({ rows, activeSort, dir, onSort }: Props) 
             />
           </th>
           <th>Price</th>
-          <th>%</th>
+          <th>
+            <SortHeader
+              label="% Change"
+              col="pctChange"
+              activeSort={activeSort}
+              dir={dir}
+              onSort={onSort}
+            />
+          </th>
           <th>SI% (Public)</th>
           <th>SI% (Broad)</th>
           <th>DTC</th>
-          <th>RVOL</th>
+          <th>
+            <SortHeader
+              label="RVOL"
+              col="rvol"
+              activeSort={activeSort}
+              dir={dir}
+              onSort={onSort}
+            />
+          </th>
           <th>Catalyst</th>
           <th>Watch</th>
         </tr>
