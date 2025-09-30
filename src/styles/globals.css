@@ -1,3 +1,11 @@
 html, body, #root { height: 100%; }
 body { background: #0b0e14; color: #e6e6e6; }
 a { text-decoration: none; }
+
+/* Sticky Header */
+.table-sticky thead th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: #121212;
+}

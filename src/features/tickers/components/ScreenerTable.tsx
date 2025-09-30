@@ -2,16 +2,36 @@ import { Table, Badge, Button } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import type { TickerRow } from '../../../lib/types';
 import { useWatchlist } from '../../watchlists/useWatchlist';
+import { SortHeader } from './SortHeader';
 
-export default function ScreenerTable({ rows }: { rows: TickerRow[] }) {
+// sort types
+type SortDir = 'asc' | 'desc';
+type SortableColumn = keyof TickerRow | 'pctChange';
+
+type Props = {
+  rows: TickerRow[];
+  activeSort: SortableColumn;
+  dir: SortDir;
+  onSort: (col: SortableColumn) => void;
+};
+
+export default function ScreenerTable({ rows, activeSort, dir, onSort }: Props) {
 
   const { add, remove, has } = useWatchlist();
 
   return (
-    <Table striped bordered hover variant="dark" size="sm" responsive>
+    <Table className="table-sticky" striped bordered hover variant="dark" size="sm" responsive>
       <thead>
         <tr>
-          <th>Ticker</th>
+          <th>
+            <SortHeader
+              label="Ticker"
+              col="ticker"
+              activeSort={activeSort}
+              dir={dir}
+              onSort={onSort}
+            />
+          </th>
           <th>Price</th>
           <th>%</th>
           <th>SI% (Public)</th>
@@ -39,7 +59,7 @@ export default function ScreenerTable({ rows }: { rows: TickerRow[] }) {
               <td>{r.dtc.toFixed(1)}</td>
               <td>{r.rvol.toFixed(1)}</td>
               <td>{r.catalyst ? <Badge bg="warning" text="dark">Yes</Badge> : '—'}</td>
-              <td>
+              <td className="text-nowrap">
                 {tracked ? (
                   <Button size="sm" variant="outline-warning" onClick={() => remove(r.ticker)}>
                     Remove
