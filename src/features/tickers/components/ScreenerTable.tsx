@@ -52,7 +52,15 @@ export default function ScreenerTable({ rows, activeSort, dir, onSort }: Props) 
             />
           </th>
           <th>SI% (Broad)</th>
-          <th>DTC</th>
+          <th>
+            <SortHeader
+              label="DTC"
+              col="dtc"
+              activeSort={activeSort}
+              dir={dir}
+              onSort={onSort}
+            />
+          </th>
           <th>
             <SortHeader
               label="RVOL"
