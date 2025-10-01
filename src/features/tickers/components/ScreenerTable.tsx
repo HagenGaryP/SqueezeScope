@@ -19,73 +19,29 @@ export default function ScreenerTable({ rows, activeSort, dir, onSort }: Props) 
 
   const { add, remove, has } = useWatchlist();
 
+  const columns: Array<{ label: string; col: SortableColumn }> = [
+    { label: 'Ticker', col: 'ticker' },
+    { label: 'Price', col: 'price' },
+    { label: '% Change', col: 'pctChange' },
+    { label: 'SI% (Public)', col: 'siPublic' },
+    { label: 'SI% (Broad)', col: 'siBroad' },
+    { label: 'DTC', col: 'dtc' },
+    { label: 'RVOL', col: 'rvol' },
+  ];
+
   return (
     <Table className="table-sticky" striped bordered hover variant="dark" size="sm" responsive>
       <thead>
         <tr>
-          <th aria-sort={activeSort === 'ticker' ? (dir === 'asc' ? 'ascending' : 'descending') : 'none'}>
-            <SortHeader
-              label="Ticker"
-              col="ticker"
-              activeSort={activeSort}
-              dir={dir}
-              onSort={onSort}
-            />
-          </th>
-          <th aria-sort={activeSort === 'price' ? (dir === 'asc' ? 'ascending' : 'descending') : 'none'}>
-            <SortHeader
-              label="Price"
-              col="price"
-              activeSort={activeSort}
-              dir={dir}
-              onSort={onSort}
-            />
-          </th>
-          <th aria-sort={activeSort === 'pctChange' ? (dir === 'asc' ? 'ascending' : 'descending') : 'none'}>
-            <SortHeader
-              label="% Change"
-              col="pctChange"
-              activeSort={activeSort}
-              dir={dir}
-              onSort={onSort}
-            />
-          </th>
-          <th aria-sort={activeSort === 'siPublic' ? (dir === 'asc' ? 'ascending' : 'descending') : 'none'}>
-            <SortHeader
-              label="SI% (Public)"
-              col="siPublic"
-              activeSort={activeSort}
-              dir={dir}
-              onSort={onSort}
-            />
-          </th>
-          <th aria-sort={activeSort === 'siBroad' ? (dir === 'asc' ? 'ascending' : 'descending') : 'none'}>
-            <SortHeader
-              label="SI% (Broad)"
-              col="siBroad"
-              activeSort={activeSort}
-              dir={dir}
-              onSort={onSort}
-            />
-          </th>
-          <th aria-sort={activeSort === 'dtc' ? (dir === 'asc' ? 'ascending' : 'descending') : 'none'}>
-            <SortHeader
-              label="DTC"
-              col="dtc"
-              activeSort={activeSort}
-              dir={dir}
-              onSort={onSort}
-            />
-          </th>
-          <th aria-sort={activeSort === 'rvol' ? (dir === 'asc' ? 'ascending' : 'descending') : 'none'}>
-            <SortHeader
-              label="RVOL"
-              col="rvol"
-              activeSort={activeSort}
-              dir={dir}
-              onSort={onSort}
-            />
-          </th>
+          {columns.map(({ label, col }) => (
+            <th
+              key={col}
+              aria-sort={activeSort === col ? (dir === 'asc' ? 'ascending' : 'descending') : 'none'}
+            >
+              <SortHeader label={label} col={col} activeSort={activeSort} dir={dir} onSort={onSort} />
+            </th>
+          ))}
+
           {/* Not sorting by Catalyst or Watch */}
           <th>Catalyst</th>
           <th>Watch</th>
