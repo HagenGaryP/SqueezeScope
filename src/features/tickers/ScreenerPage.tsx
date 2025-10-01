@@ -34,8 +34,8 @@ function valuesFromParams(params: URLSearchParams): ScreenerValues {
     dtcMin: params.get('dtcMin') ?? '0',
     rvolMin: params.get('rvolMin') ?? '0',
     catalyst: params.get('catalyst') === '1' ? 'true' : 'false',
-    sort: (params.get('sort') ?? 'rvol') as SortKey,
-    dir: (params.get('dir') ?? 'desc') as Dir,
+    sort: (params.get('sort') ?? 'ticker') as SortKey,
+    dir: (params.get('dir') ?? 'asc') as Dir,
   }
   // 1) Coerce & default from URL
   const coerced = ScreenerInputSchema.parse(raw)
@@ -154,11 +154,11 @@ export default function ScreenerPage() {
           <Col md={2}>
             <Form.Label>Sort</Form.Label>
             <Form.Select {...form.register('sort')}>
+              <option value="ticker">Ticker</option>
               <option value="rvol">RVOL</option>
               <option value="siPublic">SI% Public</option>
               <option value="dtc">DTC</option>
               <option value="pctChange">% Change</option>
-              <option value="ticker">Ticker</option>
             </Form.Select>
           </Col>
           <Col md="auto">

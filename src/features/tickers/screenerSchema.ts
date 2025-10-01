@@ -1,10 +1,23 @@
-import { z } from 'zod'
+import { z } from 'zod';
 
-export const sortKeys = ['ticker', 'siPublic', 'dtc', 'rvol', 'pctChange'] as const
-export type SortKey = typeof sortKeys[number]
+/**
+ * Supported keys to sort the list of stocks by a given metric.
+ */
+export const sortKeys = [
+  'ticker',
+  'siPublic',
+  'siBroad',
+  'dtc',
+  'rvol',
+  'pctChange',
+  'price',
+] as const;
 
-export const dirKeys = ['asc', 'desc'] as const
-export type Dir = typeof dirKeys[number]
+export type SortKey = typeof sortKeys[number];
+
+/** Sort direction */
+export const dirKeys = ['asc', 'desc'] as const;
+export type Dir = typeof dirKeys[number];
 
 /**
  * Input schema (coerces & supplies defaults from URL/query).
@@ -16,9 +29,9 @@ export const ScreenerInputSchema = z.object({
   dtcMin: z.coerce.number().min(0).max(10).default(0),
   rvolMin: z.coerce.number().min(0).max(10).default(0),
   catalyst: z.coerce.boolean().default(false),
-  sort: z.enum(sortKeys).default('rvol'),
-  dir: z.enum(dirKeys).default('desc'),
-})
+  sort: z.enum(sortKeys).default('ticker'),
+  dir: z.enum(dirKeys).default('asc'),
+});
 
 /**
  * Form schema (all fields required & correctly typed for RHF).
@@ -32,6 +45,6 @@ export const ScreenerFormSchema = z.object({
   catalyst: z.boolean(),
   sort: z.enum(sortKeys),
   dir: z.enum(dirKeys),
-})
+});
 
-export type ScreenerValues = z.infer<typeof ScreenerFormSchema>
+export type ScreenerValues = z.infer<typeof ScreenerFormSchema>;
