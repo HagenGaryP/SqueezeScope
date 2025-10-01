@@ -20,16 +20,19 @@ export function SortHeader({ label, col, activeSort, dir, onSort }: Props) {
     <Button
       variant="link"
       size="sm"
-      className="p-0 text-decoration-none text-light sort-header-btn"
+      className="sort-header-btn w-100 text-start"
       onClick={() => onSort(col)}
       title={isActive ? `Sorted by ${label}  (${dir})` : `Sort by ${label}`}
       aria-label={
         isActive ? `Sort by ${label}, currently ${dir}. Toggle direction.` : `Sort by ${label}`
       }
+      data-active={isActive ? 'true' : 'false'}
     >
-      {label}{' '}
-      {/* show caret only on active column */}
-      {isActive ? <span aria-hidden="true">{caret}</span> : null}
+      <span className="sort-header-inner">
+        <span className="sort-header-label">{label}</span>
+        {/* caret placeholder is ALWAYS rendered to reserve space */}
+        <span className="sort-caret" aria-hidden="true">{caret}</span>
+      </span>
     </Button>
   );
 }
