@@ -14,17 +14,22 @@ type Props = {
 
 export function SortHeader({ label, col, activeSort, dir, onSort }: Props) {
   const isActive = activeSort === col; // isActive = true if activeSort and col are identical
-  const caret = isActive ? (dir === 'asc' ? '▲' : '▼') : '▵';
+  const caret = dir === 'asc' ? '▲' : '▼';
 
   return (
     <Button
       variant="link"
       size="sm"
-      className="p-0 text-decoration-none text-light"
+      className="p-0 text-decoration-none text-light sort-header-btn"
       onClick={() => onSort(col)}
-      aria-label={`Sort by ${label}${isActive ? `, ${dir}` : ''}`}
+      title={isActive ? `Sorted by ${label}  (${dir})` : `Sort by ${label}`}
+      aria-label={
+        isActive ? `Sort by ${label}, currently ${dir}. Toggle direction.` : `Sort by ${label}`
+      }
     >
-      {label} <span aria-hidden="true">{caret}</span>
+      {label}{' '}
+      {/* show caret only on active column */}
+      {isActive ? <span aria-hidden="true">{caret}</span> : null}
     </Button>
   );
 }

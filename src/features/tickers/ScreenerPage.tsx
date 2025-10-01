@@ -18,12 +18,14 @@ import {
 
 function sortKeyToField(k: SortKey): keyof TickerRow {
   switch (k) {
-    case 'siPublic': return 'siPublic'
-    case 'dtc': return 'dtc'
-    case 'rvol': return 'rvol'
-    case 'pctChange': return 'pctChange'
+    case 'siPublic': return 'siPublic';
+    case 'siBroad': return 'siBroad';
+    case 'dtc': return 'dtc';
+    case 'rvol': return 'rvol';
+    case 'pctChange': return 'pctChange';
+    case 'price': return 'price';
     case 'ticker':
-    default: return 'ticker'
+    default: return 'ticker';
   }
 }
 
@@ -155,26 +157,28 @@ export default function ScreenerPage() {
             <Form.Label>Sort</Form.Label>
             <Form.Select {...form.register('sort')}>
               <option value="ticker">Ticker</option>
-              <option value="rvol">RVOL</option>
               <option value="siPublic">SI% Public</option>
+              <option value="siBroad">SI% Broad</option>
+              <option value="rvol">RVOL</option>
               <option value="dtc">DTC</option>
               <option value="pctChange">% Change</option>
+              <option value="price">Price</option>
             </Form.Select>
           </Col>
           <Col md="auto">
             <Form.Label>Sort Direction</Form.Label>
             <div>
               <Button
-                variant={watched.dir === 'desc' ? 'primary' : 'secondary'}
-                size="sm"
-                className="me-2"
-                onClick={() => form.setValue('dir', 'desc')}
-              >Desc</Button>
-              <Button
                 variant={watched.dir === 'asc' ? 'primary' : 'secondary'}
                 size="sm"
+                className="me-2"
                 onClick={() => form.setValue('dir', 'asc')}
               >Asc</Button>
+              <Button
+                variant={watched.dir === 'desc' ? 'primary' : 'secondary'}
+                size="sm"
+                onClick={() => form.setValue('dir', 'desc')}
+              >Desc</Button>
             </div>
           </Col>
         </Row>

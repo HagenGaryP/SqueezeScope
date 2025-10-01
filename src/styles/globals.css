@@ -9,3 +9,19 @@ a { text-decoration: none; }
   z-index: 2;
   background: #121212;
 }
+
+/* Sort header button - subtle underline on hover, clear focus ring */
+.sort-header-btn:hover {
+  text-decoration: underline;
+}
+.sort-header-btn:focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.6);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Active header will be slightly brighter to make it a bit more obvious */
+.sort-header-btn[data-active="true"] {
+  color: #fff;
+  font-weight: 700;
+}

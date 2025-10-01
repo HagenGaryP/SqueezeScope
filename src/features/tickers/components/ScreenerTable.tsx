@@ -23,7 +23,7 @@ export default function ScreenerTable({ rows, activeSort, dir, onSort }: Props) 
     <Table className="table-sticky" striped bordered hover variant="dark" size="sm" responsive>
       <thead>
         <tr>
-          <th>
+          <th aria-sort={activeSort === 'ticker' ? (dir === 'asc' ? 'ascending' : 'descending') : 'none'}>
             <SortHeader
               label="Ticker"
               col="ticker"
@@ -32,8 +32,16 @@ export default function ScreenerTable({ rows, activeSort, dir, onSort }: Props) 
               onSort={onSort}
             />
           </th>
-          <th>Price</th>
-          <th>
+          <th aria-sort={activeSort === 'price' ? (dir === 'asc' ? 'ascending' : 'descending') : 'none'}>
+            <SortHeader
+              label="Price"
+              col="price"
+              activeSort={activeSort}
+              dir={dir}
+              onSort={onSort}
+            />
+          </th>
+          <th aria-sort={activeSort === 'pctChange' ? (dir === 'asc' ? 'ascending' : 'descending') : 'none'}>
             <SortHeader
               label="% Change"
               col="pctChange"
@@ -42,7 +50,7 @@ export default function ScreenerTable({ rows, activeSort, dir, onSort }: Props) 
               onSort={onSort}
             />
           </th>
-          <th>
+          <th aria-sort={activeSort === 'siPublic' ? (dir === 'asc' ? 'ascending' : 'descending') : 'none'}>
             <SortHeader
               label="SI% (Public)"
               col="siPublic"
@@ -51,8 +59,16 @@ export default function ScreenerTable({ rows, activeSort, dir, onSort }: Props) 
               onSort={onSort}
             />
           </th>
-          <th>SI% (Broad)</th>
-          <th>
+          <th aria-sort={activeSort === 'siBroad' ? (dir === 'asc' ? 'ascending' : 'descending') : 'none'}>
+            <SortHeader
+              label="SI% (Broad)"
+              col="siBroad"
+              activeSort={activeSort}
+              dir={dir}
+              onSort={onSort}
+            />
+          </th>
+          <th aria-sort={activeSort === 'dtc' ? (dir === 'asc' ? 'ascending' : 'descending') : 'none'}>
             <SortHeader
               label="DTC"
               col="dtc"
@@ -61,7 +77,7 @@ export default function ScreenerTable({ rows, activeSort, dir, onSort }: Props) 
               onSort={onSort}
             />
           </th>
-          <th>
+          <th aria-sort={activeSort === 'rvol' ? (dir === 'asc' ? 'ascending' : 'descending') : 'none'}>
             <SortHeader
               label="RVOL"
               col="rvol"
@@ -70,6 +86,7 @@ export default function ScreenerTable({ rows, activeSort, dir, onSort }: Props) 
               onSort={onSort}
             />
           </th>
+          {/* Not sorting by Catalyst or Watch */}
           <th>Catalyst</th>
           <th>Watch</th>
         </tr>
