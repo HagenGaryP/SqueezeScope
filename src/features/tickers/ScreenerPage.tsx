@@ -18,12 +18,14 @@ import {
 
 function sortKeyToField(k: SortKey): keyof TickerRow {
   switch (k) {
-    case 'siPublic': return 'siPublic'
-    case 'dtc': return 'dtc'
-    case 'rvol': return 'rvol'
-    case 'pctChange': return 'pctChange'
+    case 'siPublic': return 'siPublic';
+    case 'siBroad': return 'siBroad';
+    case 'dtc': return 'dtc';
+    case 'rvol': return 'rvol';
+    case 'pctChange': return 'pctChange';
+    case 'price': return 'price';
     case 'ticker':
-    default: return 'ticker'
+    default: return 'ticker';
   }
 }
 
@@ -34,8 +36,8 @@ function valuesFromParams(params: URLSearchParams): ScreenerValues {
     dtcMin: params.get('dtcMin') ?? '0',
     rvolMin: params.get('rvolMin') ?? '0',
     catalyst: params.get('catalyst') === '1' ? 'true' : 'false',
-    sort: (params.get('sort') ?? 'rvol') as SortKey,
-    dir: (params.get('dir') ?? 'desc') as Dir,
+    sort: (params.get('sort') ?? 'ticker') as SortKey,
+    dir: (params.get('dir') ?? 'asc') as Dir,
   }
   // 1) Coerce & default from URL
   const coerced = ScreenerInputSchema.parse(raw)
@@ -45,18 +47,18 @@ function valuesFromParams(params: URLSearchParams): ScreenerValues {
 
 export default function ScreenerPage() {
   // --- data ---
-  const { data, isLoading, error } = useQuery({
+  const { data, isLoading, error } = useQuery<TickerRow[] | { rows: TickerRow[] }>({
     queryKey: ['tickers'],
     queryFn: async () => (await api.get<TickerRow[]>('/tickers')).data,
-  })
+  });
 
-  // --- URL <-> form state ---
+  // --- URL <-> form state (single source of truth for sorting/filtering) ---
   const [params, setParams] = useSearchParams()
   const form = useForm<ScreenerValues>({
     defaultValues: valuesFromParams(params),
     resolver: zodResolver(ScreenerFormSchema), // <-- uses the required schema
     mode: 'onChange',
-  })
+  });
 
   // Reflect form changes into URL
   React.useEffect(() => {
@@ -75,34 +77,51 @@ export default function ScreenerPage() {
     return () => sub.unsubscribe()
   }, [form, setParams])
 
-  // --- derived table data ---
+  // onSort handler - updates the form
+  const onSort = React.useCallback((col: SortKey) => {
+    const cur = form.getValues();
+    if (col === cur.sort) {
+      form.setValue('dir', cur.dir === 'asc' ? 'desc' : 'asc');
+    } else {
+      form.setValue('sort', col);
+      form.setValue('dir', 'asc');
+    }
+  }, [form]);
+
+  // --- derived table data (filter + sort) ---
   const watched = form.watch()
   const filtered = React.useMemo(() => {
-    const rows = data ?? [] // moved *inside* useMemo to appease eslint react-hooks deps
-    const { q, siMin, dtcMin, rvolMin, catalyst, sort, dir } = watched
+    const rows: TickerRow[] = Array.isArray(data)
+      ? data
+      : Array.isArray(data?.rows)
+        ? data?.rows
+        : [];
+
+    const { q, siMin, dtcMin, rvolMin, catalyst, sort, dir } = watched;
 
     let out = rows
       .filter(r => !q || r.ticker.toLowerCase().includes(q.toLowerCase()))
       .filter(r => r.siPublic >= siMin)
       .filter(r => r.dtc >= dtcMin)
       .filter(r => r.rvol >= rvolMin)
-      .filter(r => !catalyst || r.catalyst)
+      .filter(r => !catalyst || r.catalyst);
 
-    const key: keyof TickerRow = sortKeyToField(sort)
-    const order = dir === 'asc' ? 1 : -1
+    const key: keyof TickerRow = sortKeyToField(sort);
+    const order = dir === 'asc' ? 1 : -1;
 
     out = [...out].sort((a, b) => {
-      const av = a[key] // number | string
-      const bv = b[key] // number | string
-      if (typeof av === 'number' && typeof bv === 'number') return (av - bv) * order
-      return String(av).localeCompare(String(bv)) * order
-    })
-    return out
+      const av = a[key]; // number | string
+      const bv = b[key]; // number | string
+      if (typeof av === 'number' && typeof bv === 'number') return (av - bv) * order;
+      return String(av).localeCompare(String(bv)) * order;
+    });
+
+    return out;
   }, [data, watched])
 
   // --- UI ---
-  if (isLoading) return <Spinner animation="border" />
-  if (error) return <p>Failed to load.</p>
+  if (isLoading) return <Spinner animation="border" />;
+  if (error) return <p>Failed to load.</p>;
 
   return (
     <div>
@@ -137,33 +156,40 @@ export default function ScreenerPage() {
           <Col md={2}>
             <Form.Label>Sort</Form.Label>
             <Form.Select {...form.register('sort')}>
-              <option value="rvol">RVOL</option>
+              <option value="ticker">Ticker</option>
               <option value="siPublic">SI% Public</option>
+              <option value="siBroad">SI% Broad</option>
+              <option value="rvol">RVOL</option>
               <option value="dtc">DTC</option>
               <option value="pctChange">% Change</option>
-              <option value="ticker">Ticker</option>
+              <option value="price">Price</option>
             </Form.Select>
           </Col>
           <Col md="auto">
-            <Form.Label>Dir</Form.Label>
+            <Form.Label>Sort Direction</Form.Label>
             <div>
-              <Button
-                variant={watched.dir === 'desc' ? 'primary' : 'secondary'}
-                size="sm"
-                className="me-2"
-                onClick={() => form.setValue('dir', 'desc')}
-              >Desc</Button>
               <Button
                 variant={watched.dir === 'asc' ? 'primary' : 'secondary'}
                 size="sm"
+                className="me-2"
                 onClick={() => form.setValue('dir', 'asc')}
               >Asc</Button>
+              <Button
+                variant={watched.dir === 'desc' ? 'primary' : 'secondary'}
+                size="sm"
+                onClick={() => form.setValue('dir', 'desc')}
+              >Desc</Button>
             </div>
           </Col>
         </Row>
       </Form>
 
-      <ScreenerTable rows={filtered} />
+      <ScreenerTable
+        rows={filtered}
+        activeSort={watched.sort}
+        dir={watched.dir}
+        onSort={onSort}
+      />
     </div>
   )
 }

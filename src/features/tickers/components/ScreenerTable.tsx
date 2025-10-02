@@ -2,50 +2,119 @@ import { Table, Badge, Button } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import type { TickerRow } from '../../../lib/types';
 import { useWatchlist } from '../../watchlists/useWatchlist';
+import { SortHeader } from './SortHeader';
 
-export default function ScreenerTable({ rows }: { rows: TickerRow[] }) {
+/**
+ * Local sort types mirroring the page and SortHeader types.
+ * Keeping them here avoids importing feature-wide types just for this file.
+ */
+type SortDir = 'asc' | 'desc';
+type SortableColumn = keyof TickerRow | 'pctChange';
 
+/**
+ * Table props:
+ * - rows:     already filtered/sorted data for display
+ * - activeSort/dir: current sort state (drives header UI and aria-sort)
+ * - onSort:   invoked by SortHeader to update the sort state upstream
+ */
+type Props = {
+  rows: TickerRow[];
+  activeSort: SortableColumn;
+  dir: SortDir;
+  onSort: (col: SortableColumn) => void;
+};
+
+/**
+ * DRY config for sortable headers. Hoisted outside the component
+ * to avoid re-allocating the array on every render.
+ */
+const COLUMNS: ReadonlyArray<{ label: string; col: SortableColumn }> = [
+  { label: 'Ticker', col: 'ticker' },
+  { label: 'Price', col: 'price' },
+  { label: '% Change', col: 'pctChange' },
+  { label: 'SI% (Public)', col: 'siPublic' },
+  { label: 'SI% (Broad)', col: 'siBroad' },
+  { label: 'DTC', col: 'dtc' },
+  { label: 'RVOL', col: 'rvol' },
+];
+
+export default function ScreenerTable({ rows, activeSort, dir, onSort }: Props) {
   const { add, remove, has } = useWatchlist();
 
   return (
-    <Table striped bordered hover variant="dark" size="sm" responsive>
+    <Table className="table-sticky" striped bordered hover variant="dark" size="sm" responsive>
       <thead>
         <tr>
-          <th>Ticker</th>
-          <th>Price</th>
-          <th>%</th>
-          <th>SI% (Public)</th>
-          <th>SI% (Broad)</th>
-          <th>DTC</th>
-          <th>RVOL</th>
+          {/* Sortable columns: render from config to keep markup consistent and maintainable.
+              aria-sort communicates the current sort state to assistive tech. */}
+          {COLUMNS.map(({ label, col }) => (
+            <th
+              key={col}
+              aria-sort={activeSort === col ? (dir === 'asc' ? 'ascending' : 'descending') : 'none'}
+              data-sort-active={activeSort === col ? 'true' : 'false'}
+            >
+              <SortHeader
+                label={label}
+                col={col}
+                activeSort={activeSort}
+                dir={dir}
+                onSort={onSort}
+              />
+            </th>
+          ))}
+
+          {/* Non-sortable columns: Catalyst flag and Watchlist actions */}
           <th>Catalyst</th>
           <th>Watch</th>
         </tr>
       </thead>
       <tbody>
+         {/* Note: rows are assumed normalized and typed upstream.
+            Keep row rendering straightforward and side-effect free. */}
         {rows.map(r => {
-
           const tracked = has(r.ticker);
 
           return (
             <tr key={r.ticker}>
-              <td><Link to={`/ticker/${r.ticker}`}>{r.ticker}</Link></td>
+              <td>
+                {/* Link to detail page; keep the symbol as-is (already uppercased upstream). */}
+                <Link to={`/ticker/${r.ticker}`}>{r.ticker}</Link>
+              </td>
+
+              {/* Number cells: use toFixed for consistent decimals in the current UX.
+                  (If needed later, switch to Intl.NumberFormat for locale-aware formatting.) */}
               <td>{r.price.toFixed(2)}</td>
+
               <td className={r.pctChange >= 0 ? 'text-success' : 'text-danger'}>
                 {r.pctChange.toFixed(2)}
               </td>
+
               <td>{r.siPublic.toFixed(1)}</td>
               <td>{r.siBroad.toFixed(1)}</td>
               <td>{r.dtc.toFixed(1)}</td>
               <td>{r.rvol.toFixed(1)}</td>
+
+              {/* Catalyst: use a badge for quick scanning; fallback em dash when false. */}
               <td>{r.catalyst ? <Badge bg="warning" text="dark">Yes</Badge> : '—'}</td>
-              <td>
+
+              {/* Watchlist action: compact buttons; keep layout stable with text-nowrap. */}
+              <td className="text-nowrap">
                 {tracked ? (
-                  <Button size="sm" variant="outline-warning" onClick={() => remove(r.ticker)}>
+                  <Button
+                    size="sm"
+                    variant="outline-warning"
+                    onClick={() => remove(r.ticker)}
+                    aria-label={`Remove ${r.ticker} from watchlist`}
+                  >
                     Remove
                   </Button>
                 ) : (
-                  <Button size="sm" variant="outline-info" onClick={() => add(r.ticker)}>
+                  <Button
+                    size="sm"
+                    variant="outline-info"
+                    onClick={() => add(r.ticker)}
+                    aria-label={`Add ${r.ticker} to watchlist`}
+                  >
                     Add
                   </Button>
                 )}

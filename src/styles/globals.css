@@ -1,3 +1,56 @@
 html, body, #root { height: 100%; }
 body { background: #0b0e14; color: #e6e6e6; }
 a { text-decoration: none; }
+
+/* Make header button fill the cell and feel clickable */
+.table-sticky thead th .sort-header-btn {
+  display: block;
+  width: 100%;
+  padding: 0.25rem 0;      /* stable click target */
+  color: inherit;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+/* Align label + caret, prevent width shift */
+.table-sticky thead th .sort-header-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;  /* label left, caret right */
+  gap: 0.25rem;
+}
+
+/* Caret: reserve space even when "inactive" */
+.table-sticky thead th .sort-caret {
+  display: inline-block;
+  width: 1ch;              /* reserve width of one character */
+  text-align: right;
+  opacity: 0;              /* invisible by default */
+  transition: opacity 120ms ease;
+}
+
+/* Hover: subtle background for full header cell */
+.table-sticky thead th .sort-header-btn:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 4px;
+  text-decoration: none;
+}
+
+/* Focus ring for keyboard users */
+.table-sticky thead th .sort-header-btn:focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.6);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* ACTIVE COLUMN:
+   - Don't change font-size/weight (prevents width reflow)
+   - Use subtle background + bottom border + show caret */
+.table-sticky thead th[data-sort-active="true"] .sort-header-btn {
+  background: rgba(255, 255, 255, 0.04);
+  border-bottom: 2px solid rgba(255, 255, 255, 0.35);
+  border-radius: 4px 4px 0 0;
+}
+.table-sticky thead th[data-sort-active="true"] .sort-caret {
+  opacity: 0.9;            /* visible only when active */
+}
