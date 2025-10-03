@@ -1,19 +1,45 @@
-import { isRouteErrorResponse, useRouteError } from 'react-router-dom'
+import { Container, Stack } from 'react-bootstrap';
+import { BackToScreenerButton } from '../components/ui/BackToScreenerButton';
 
-export default function ErrorFallback() {
-  const err = useRouteError()
-  if (isRouteErrorResponse(err)) {
-    return (
-      <div style={{ padding: '1rem' }}>
-        <h3>Oops — {err.status} {err.statusText}</h3>
-        {err.data && <pre style={{ whiteSpace: 'pre-wrap' }}>{String(err.data)}</pre>}
-      </div>
-    )
-  }
+type Props = {
+  error?: Error;
+  onReset?: () => void;
+};
+
+export default function ErrorFallback({ error, onReset }: Props) {
+  const isDev = import.meta.env.DEV;
+  const message = (error && (error.message || String(error))) || 'An unexpected error occurred.';
+
   return (
-    <div style={{ padding: '1rem' }}>
-      <h3>Unexpected Application Error</h3>
-      <pre style={{ whiteSpace: 'pre-wrap' }}>{String((err as Error)?.message ?? err)}</pre>
-    </div>
-  )
-}
+    <main role="main" aria-labelledby="error-title">
+      <Container className="py-5">
+        <Stack gap={3} className="text-center align-items-center" aria-live="polite">
+          <h1 id="error-title" className="display-6 m-0">
+            Something went wrong
+          </h1>
+          <p className="text-muted m-0">
+            {message}
+          </p>
+
+          {isDev && error?.stack && (
+            <pre
+              className="text-start w-100 border rounded p-3 mt-2 overflow-auto"
+              style={{ maxHeight: 300 }}
+            >
+              {error.stack}
+            </pre>
+          )}
+
+          <div className="d-flex gap-2 mt-2">
+            {onReset && (
+              <button type="button" className="btn btn-outline-secondary" onClick={onReset}>
+                Try again
+              </button>
+            )}
+            <BackToScreenerButton />
+          </div>
+        </Stack>
+      </Container>
+    </main>
+  );
+};
