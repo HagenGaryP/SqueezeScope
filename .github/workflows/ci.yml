@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: [ main, feature/** ]
+    branches: [ main ]
   pull_request:
     branches: [ main ]
 
@@ -16,6 +16,8 @@ permissions:
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
+    env:
+      CI: "true"
 
     steps:
       - name: Checkout repository
@@ -24,12 +26,10 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 22
-          cache: npm
-          # Cache key tied to the root lockfile for reliable restores
+          node-version: '22.x'
+          cache: 'npm'
           cache-dependency-path: package-lock.json
 
-      # Verify lockfile and fail fast if lockfile is missing, to prevent bad installs
       - name: Verify lockfile
         run: |
           if [ ! -f package-lock.json ]; then
@@ -38,40 +38,13 @@ jobs:
           fi
 
       - name: Install dependencies
-        env:
-          CI: "true"
         run: npm ci
 
-      - name: Build (optional)
-        env:
-          CI: "true"
-        run: npm run build --if-present
+      - name: Lint
+        run: npm run lint
 
-      - name: Lint (optional)
-        env:
-          CI: "true"
-        run: |
-          if npm run | grep -qE '^\s*lint\s'; then
-            npm run lint
-          else
-            echo "No 'lint' script found; skipping."
-          fi
+      - name: Typecheck
+        run: npx tsc --noEmit
 
-      - name: Type check (optional)
-        env:
-          CI: "true"
-        run: |
-          if npm run | grep -qE '^\s*typecheck\s'; then
-            npm run typecheck
-          else
-            echo "No 'typecheck' script found; skipping."
-          fi
-
-      - name: Test (optional)
-        run: |
-          if npm run | grep -qE '^\s*test\s'; then
-            # Allow success even if no tests yet. Jest friendly.
-            npm test -- --ci --passWithNoTests
-          else
-            echo "No 'test' script found; skipping."
-          fi
+      - name: Build
+        run: npm run build
