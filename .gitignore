@@ -35,5 +35,7 @@ Thumbs.db
 # TypeScript build cache
 *.tsbuildinfo
 
-# TypeScript build cache
-*.tsbuildinfo
+# Ignore accidental compiled config files
+/vite.config.js
+/tsup.config.js
+/rollup.config.js
