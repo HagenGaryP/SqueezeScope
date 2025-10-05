@@ -9,7 +9,9 @@
     "lint": "eslint . --ext .ts,.tsx",
     "typecheck": "tsc --noEmit -p tsconfig.app.json && tsc --noEmit -p tsconfig.node.json",
     "test": "vitest --run",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "build:mock": "VITE_ENABLE_MSW=1 vite build",
+    "preview:mock": "VITE_ENABLE_MSW=1 vite preview"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
