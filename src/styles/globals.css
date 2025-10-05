@@ -119,3 +119,31 @@ html, body { font-family: var(--ss-font-sans); }
   outline-offset: 2px;
   border-radius: var(--ss-radius);
 }
+
+
+/* Watchlist */
+.ss-card {
+  background: rgba(255,255,255,.03);
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: var(--ss-radius);
+  /* box-shadow: 0 1px 2px rgba(0,0,0,.25); */
+}
+
+.ss-ticker-link {
+  text-decoration: none;
+}
+.ss-ticker-link:hover,
+.ss-ticker-link:focus {
+  text-decoration: underline;
+}
+
+/* blend list group rows with dark canvas */
+.list-group-item.bg-transparent {
+  background-color: transparent;
+  border-color: rgba(255,255,255,.08);
+}
+
+.table .col-fit {
+  width: 1%;
+  white-space: nowrap;
+}
