@@ -42,7 +42,14 @@ export default function ScreenerTable({ rows, activeSort, dir, onSort }: Props) 
   const { add, remove, has } = useWatchlist();
 
   return (
-    <Table className="table-sticky" striped bordered hover variant="dark" size="sm" responsive>
+    <Table
+      className="table-sticky ss-compact ss-lines-ss-hover"
+      striped
+      hover
+      variant="dark"
+      size="sm"
+      responsive
+    >
       <thead>
         <tr>
           {/* Sortable columns: render from config to keep markup consistent and maintainable.
