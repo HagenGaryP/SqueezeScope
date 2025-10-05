@@ -1,15 +1,14 @@
 import { Button } from 'react-bootstrap';
-import type { TickerRow } from '../../../lib/types';
+import type { SortKey } from '../screenerSchema';
 
 export type SortDir = 'asc' | 'desc';
-export type sortableColumn = keyof TickerRow | 'pctChange';
 
 type Props = {
   label: string;
-  col: sortableColumn;
-  activeSort: sortableColumn;
+  col: SortKey;
+  activeSort: SortKey;
   dir: SortDir;
-  onSort: (col: sortableColumn) => void;
+  onSort: (col: SortKey) => void;
 };
 
 export function SortHeader({ label, col, activeSort, dir, onSort }: Props) {

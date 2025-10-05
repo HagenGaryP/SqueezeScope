@@ -3,13 +3,12 @@ import { Link } from 'react-router-dom';
 import type { TickerRow } from '../../../lib/types';
 import { useWatchlist } from '../../watchlists/useWatchlist';
 import { SortHeader } from './SortHeader';
+import type { SortKey } from '../screenerSchema';
 
 /**
- * Local sort types mirroring the page and SortHeader types.
- * Keeping them here avoids importing feature-wide types just for this file.
+ * Local sort types mirroring the page.
  */
 type SortDir = 'asc' | 'desc';
-type SortableColumn = keyof TickerRow | 'pctChange';
 
 /**
  * Table props:
@@ -19,16 +18,16 @@ type SortableColumn = keyof TickerRow | 'pctChange';
  */
 type Props = {
   rows: TickerRow[];
-  activeSort: SortableColumn;
+  activeSort: SortKey;
   dir: SortDir;
-  onSort: (col: SortableColumn) => void;
+  onSort: (col: SortKey) => void;
 };
 
 /**
  * DRY config for sortable headers. Hoisted outside the component
  * to avoid re-allocating the array on every render.
  */
-const COLUMNS: ReadonlyArray<{ label: string; col: SortableColumn }> = [
+const COLUMNS: ReadonlyArray<{ label: string; col: SortKey }> = [
   { label: 'Ticker', col: 'ticker' },
   { label: 'Price', col: 'price' },
   { label: '% Change', col: 'pctChange' },
