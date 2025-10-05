@@ -98,6 +98,21 @@ html, body { font-family: var(--ss-font-sans); }
   background: rgba(255,255,255,.06);
 }
 
+.table-dark a {
+  color: #93c5fd;
+}
+.table-dark a:hover, .table-dark a:focus {
+  color: #bfdbfe;
+  text-decoration: underline;
+}
+
+.table-dark .text-success {
+  color: #22c55e !important;
+}
+.table-dark .text-danger {
+  color: #ef4444 !important;
+}
+
 /* Global focus ring */
 :where(a, button, [role="button"], .btn):focus-visible {
   outline: 3px solid var(--ss-focus);
