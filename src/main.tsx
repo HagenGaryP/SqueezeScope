@@ -10,9 +10,11 @@ import './styles/globals.css';
 const qc = new QueryClient();
 
 async function prepare() {
-  if (import.meta.env.DEV) {
-    const { worker } = await import('./mocks/browser')
-    // Ensure that MSW starts BEFORE rendering - otherwise mock data in dev env will have issues loading
+  const enableMock =
+  import.meta.env.DEV || import.meta.env.VITE_ENABLE_MSW === '1';
+
+  if (enableMock) {
+    const { worker } = await import('./mocks/browser');
     await worker.start({
       serviceWorker: { url: '/mockServiceWorker.js' },
       onUnhandledRequest: 'bypass',
