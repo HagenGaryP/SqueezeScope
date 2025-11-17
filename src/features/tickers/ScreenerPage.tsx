@@ -18,13 +18,18 @@ import {
 import { filterRows } from './filter';
 import { sortRows, type SortKey as SortKeyForSort } from './sort';
 import { valuesFromParams, useScreenerUrlSync } from './urlState';
-import { toTickerRows } from './query';
+import {
+  toTickerRows,
+  type TickerQueryData,
+  TICKERS_QUERY_KEY,
+} from './query';
+
 
 
 export default function ScreenerPage() {
   // data
-  const { data, isLoading, error } = useQuery<TickerRow[] | { rows: TickerRow[] }>({
-    queryKey: ['tickers'],
+  const { data, isLoading, error } = useQuery<TickerQueryData>({
+    queryKey: TICKERS_QUERY_KEY,
     queryFn: async () => (await api.get<TickerRow[]>('/tickers')).data,
   });
 
