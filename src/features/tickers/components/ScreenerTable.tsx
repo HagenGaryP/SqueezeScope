@@ -42,7 +42,7 @@ export default function ScreenerTable({ rows, activeSort, dir, onSort }: Props) 
 
   return (
     <Table
-      className="table-sticky ss-compact ss-lines-ss-hover"
+      className="table-sticky ss-compact ss-lines ss-hover"
       striped
       hover
       variant="dark"
