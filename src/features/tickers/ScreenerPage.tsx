@@ -8,35 +8,18 @@ import { Form, Row, Col, Spinner, Button, Alert } from 'react-bootstrap';
 import { api } from '../../lib/api';
 import type { TickerRow } from '../../lib/types';
 import ScreenerTable from './components/ScreenerTable';
+
 import {
-  ScreenerInputSchema,
   ScreenerFormSchema,
   type ScreenerValues,
   type SortKey,
-  type Dir,
 } from './screenerSchema';
+
 import { filterRows } from './filter';
 import { sortRows, type SortKey as SortKeyForSort } from './sort';
+import { valuesFromParams, useScreenerUrlSync } from './urlState';
+import { toTickerRows } from './query';
 
-function valuesFromParams(params: URLSearchParams): ScreenerValues {
-  const raw = {
-    q: params.get('q') ?? '',
-    siMin: params.get('siMin') ?? '0',
-    dtcMin: params.get('dtcMin') ?? '0',
-    rvolMin: params.get('rvolMin') ?? '0',
-    catalyst: params.get('catalyst') === '1' ? 'true' : 'false',
-    sort: (params.get('sort') ?? 'ticker') as SortKey,
-    dir: (params.get('dir') ?? 'asc') as Dir,
-  };
-  const coerced = ScreenerInputSchema.parse(raw);
-  return ScreenerFormSchema.parse(coerced);
-}
-
-// helper function for ScreenerPage component - Normalizes query result into plain array of rows.
-function toTickerRows(input: TickerRow[] | { rows: TickerRow[] } | undefined): TickerRow[] {
-  if (!input) return [];
-  return Array.isArray(input) ? input : input.rows;
-}
 
 export default function ScreenerPage() {
   // data
@@ -53,21 +36,7 @@ export default function ScreenerPage() {
     mode: 'onChange',
   });
 
-  React.useEffect(() => {
-    const sub = form.watch((values) => {
-      const v = values as ScreenerValues;
-      const next = new URLSearchParams();
-      if (v.q) next.set('q', v.q);
-      if (v.siMin) next.set('siMin', String(v.siMin));
-      if (v.dtcMin) next.set('dtcMin', String(v.dtcMin));
-      if (v.rvolMin) next.set('rvolMin', String(v.rvolMin));
-      if (v.catalyst) next.set('catalyst', '1');
-      next.set('sort', v.sort);
-      next.set('dir', v.dir);
-      setParams(next, { replace: true });
-    });
-    return () => sub.unsubscribe();
-  }, [form, setParams]);
+  useScreenerUrlSync(form, setParams);
 
   const onSort = React.useCallback((col: SortKey) => {
     const cur = form.getValues();
@@ -84,17 +53,18 @@ const watched = form.watch();
 
 const tableRows = React.useMemo(() => {
   const base = toTickerRows(data);
-  const obj = {
+
+  const filtered = filterRows(base, {
     q: watched.q,
     siMin: watched.siMin,
     dtcMin: watched.dtcMin,
     rvolMin: watched.rvolMin,
     catalyst: watched.catalyst,
-  };
-  const filtered = filterRows(base, obj);
+  });
 
   return sortRows(filtered, watched.sort as SortKeyForSort, watched.dir);
 }, [data, watched]);
+
 
   // UI states
   if (isLoading) {
