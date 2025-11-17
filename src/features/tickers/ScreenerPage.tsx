@@ -15,19 +15,8 @@ import {
   type SortKey,
   type Dir,
 } from './screenerSchema';
-
-function sortKeyToField(k: SortKey): keyof TickerRow {
-  switch (k) {
-    case 'siPublic': return 'siPublic';
-    case 'siBroad': return 'siBroad';
-    case 'dtc': return 'dtc';
-    case 'rvol': return 'rvol';
-    case 'pctChange': return 'pctChange';
-    case 'price': return 'price';
-    case 'ticker':
-    default: return 'ticker';
-  }
-}
+import { filterRows } from './filter';
+import { sortRows, type SortKey as SortKeyForSort } from './sort';
 
 function valuesFromParams(params: URLSearchParams): ScreenerValues {
   const raw = {
@@ -41,6 +30,12 @@ function valuesFromParams(params: URLSearchParams): ScreenerValues {
   };
   const coerced = ScreenerInputSchema.parse(raw);
   return ScreenerFormSchema.parse(coerced);
+}
+
+// helper function for ScreenerPage component - Normalizes query result into plain array of rows.
+function toTickerRows(input: TickerRow[] | { rows: TickerRow[] } | undefined): TickerRow[] {
+  if (!input) return [];
+  return Array.isArray(input) ? input : input.rows;
 }
 
 export default function ScreenerPage() {
@@ -84,29 +79,22 @@ export default function ScreenerPage() {
     }
   }, [form]);
 
-  // derived rows
-  const watched = form.watch();
-  const filtered = React.useMemo(() => {
-    const rows: TickerRow[] = Array.isArray(data) ? data : Array.isArray(data?.rows) ? data.rows : [];
-    const { q, siMin, dtcMin, rvolMin, catalyst, sort, dir } = watched;
+  // derived table data (filter + sort via pure helpers)
+const watched = form.watch();
 
-    const subset = rows
-      .filter(r => !q || r.ticker.toLowerCase().includes(q.toLowerCase()))
-      .filter(r => r.siPublic >= siMin)
-      .filter(r => r.dtc >= dtcMin)
-      .filter(r => r.rvol >= rvolMin)
-      .filter(r => !catalyst || r.catalyst);
+const tableRows = React.useMemo(() => {
+  const base = toTickerRows(data);
+  const obj = {
+    q: watched.q,
+    siMin: watched.siMin,
+    dtcMin: watched.dtcMin,
+    rvolMin: watched.rvolMin,
+    catalyst: watched.catalyst,
+  };
+  const filtered = filterRows(base, obj);
 
-    const key: keyof TickerRow = sortKeyToField(sort);
-    const order = dir === 'asc' ? 1 : -1;
-
-    return [...subset].sort((a, b) => {
-      const av = a[key];
-      const bv = b[key];
-      if (typeof av === 'number' && typeof bv === 'number') return (av - bv) * order;
-      return String(av).localeCompare(String(bv)) * order;
-    });
-  }, [data, watched]);
+  return sortRows(filtered, watched.sort as SortKeyForSort, watched.dir);
+}, [data, watched]);
 
   // UI states
   if (isLoading) {
@@ -223,7 +211,7 @@ export default function ScreenerPage() {
       </Form>
 
       <ScreenerTable
-        rows={filtered}
+        rows={tableRows}
         activeSort={watched.sort}
         dir={watched.dir}
         onSort={onSort}
