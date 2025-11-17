@@ -5,17 +5,22 @@ import { useQuery } from '@tanstack/react-query';
 import { useWatchlist } from './useWatchlist';
 import { api } from '../../lib/api';
 import type { TickerRow } from '../../lib/types';
+import {
+  toTickerRows,
+  type TickerQueryData,
+  TICKERS_QUERY_KEY,
+} from '../tickers/query';
 
 export default function WatchlistPage() {
   const { list, remove } = useWatchlist();
   const tickers = React.useMemo(() => new Set<string>(Array.isArray(list) ? list : []), [list]);
 
-  const { data, isLoading, error } = useQuery<TickerRow[] | { rows: TickerRow[] }>({
-    queryKey: ['tickers'],
+  const { data, isLoading, error } = useQuery<TickerQueryData>({
+    queryKey: TICKERS_QUERY_KEY,
     queryFn: async () => (await api.get<TickerRow[]>('/tickers')).data,
   });
 
-  const allRows: TickerRow[] = Array.isArray(data) ? data : Array.isArray(data?.rows) ? data.rows : [];
+  const allRows: TickerRow[] = toTickerRows(data);
   const rows = allRows.filter(r => tickers.has(r.ticker));
 
   if (isLoading) {
