@@ -4,6 +4,13 @@ import type { TickerRow } from '../../../lib/types';
 import { useWatchlist } from '../../watchlists/useWatchlist';
 import { SortHeader } from './SortHeader';
 import type { SortKey } from '../screenerSchema';
+import {
+  formatPrice,
+  formatPercentChange,
+  formatPercent1,
+  formatOneDecimal,
+} from '../format';
+
 
 /**
  * Local sort types mirroring the page.
@@ -75,7 +82,7 @@ export default function ScreenerTable({ rows, activeSort, dir, onSort }: Props) 
         </tr>
       </thead>
       <tbody>
-         {/* Note: rows are assumed normalized and typed upstream.
+        {/* Note: rows are assumed normalized and typed upstream.
             Keep row rendering straightforward and side-effect free. */}
         {rows.map(r => {
           const tracked = has(r.ticker);
@@ -89,16 +96,17 @@ export default function ScreenerTable({ rows, activeSort, dir, onSort }: Props) 
 
               {/* Number cells: use toFixed for consistent decimals in the current UX.
                   (If needed later, switch to Intl.NumberFormat for locale-aware formatting.) */}
-              <td>{r.price.toFixed(2)}</td>
+              <td>{formatPrice(r.price)}</td>
 
               <td className={r.pctChange >= 0 ? 'text-success' : 'text-danger'}>
-                {r.pctChange.toFixed(2)}
+                {formatPercentChange(r.pctChange)}
               </td>
 
-              <td>{r.siPublic.toFixed(1)}</td>
-              <td>{r.siBroad.toFixed(1)}</td>
-              <td>{r.dtc.toFixed(1)}</td>
-              <td>{r.rvol.toFixed(1)}</td>
+              <td>{formatPercent1(r.siPublic)}</td>
+              <td>{formatPercent1(r.siBroad)}</td>
+              <td>{formatOneDecimal(r.dtc)}</td>
+              <td>{formatOneDecimal(r.rvol)}</td>
+
 
               {/* Catalyst: use a badge for quick scanning; fallback em dash when false. */}
               <td>{r.catalyst ? <Badge bg="warning" text="dark">Yes</Badge> : '—'}</td>
