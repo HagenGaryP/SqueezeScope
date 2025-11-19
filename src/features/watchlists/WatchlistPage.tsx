@@ -3,15 +3,9 @@ import { Link } from 'react-router-dom';
 import { Table, Button, Badge, Spinner, Alert } from 'react-bootstrap';
 import { useQuery } from '@tanstack/react-query';
 import { useWatchlist } from './useWatchlist';
-import { api } from '../../lib/api';
 import type { TickerRow } from '../../lib/types';
-
-import {
-  toTickerRows,
-  type TickerQueryData,
-  TICKERS_QUERY_KEY,
-} from '../tickers/query';
-
+import { TICKERS_QUERY_KEY } from '../tickers/query';
+import { fetchTickers } from '../tickers/client';
 import {
   formatPrice,
   formatPercentChange,
@@ -20,17 +14,19 @@ import {
 } from '../tickers/format';
 
 
+// Watchlist page: fetch all tickers and show only those saved via useWatchlist.
 export default function WatchlistPage() {
   const { list, remove } = useWatchlist();
   const tickers = React.useMemo(() => new Set<string>(Array.isArray(list) ? list : []), [list]);
 
-  const { data, isLoading, error } = useQuery<TickerQueryData>({
+  const { data, isLoading, error } = useQuery<TickerRow[]>({
     queryKey: TICKERS_QUERY_KEY,
-    queryFn: async () => (await api.get<TickerRow[]>('/tickers')).data,
+    queryFn: fetchTickers,
   });
 
-  const allRows: TickerRow[] = toTickerRows(data);
+  const allRows: TickerRow[] = data ?? [];
   const rows = allRows.filter(r => tickers.has(r.ticker));
+
 
   if (isLoading) {
     return (

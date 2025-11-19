@@ -5,7 +5,6 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Form, Row, Col, Spinner, Button, Alert } from 'react-bootstrap';
 
-import { api } from '../../lib/api';
 import type { TickerRow } from '../../lib/types';
 import ScreenerTable from './components/ScreenerTable';
 
@@ -18,19 +17,15 @@ import {
 import { filterRows } from './filter';
 import { sortRows, type SortKey as SortKeyForSort } from './sort';
 import { valuesFromParams, useScreenerUrlSync } from './urlState';
-import {
-  toTickerRows,
-  type TickerQueryData,
-  TICKERS_QUERY_KEY,
-} from './query';
-
+import { TICKERS_QUERY_KEY } from './query';
+import { fetchTickers } from './client';
 
 
 export default function ScreenerPage() {
   // data
-  const { data, isLoading, error } = useQuery<TickerQueryData>({
+  const { data, isLoading, error } = useQuery<TickerRow[]>({
     queryKey: TICKERS_QUERY_KEY,
-    queryFn: async () => (await api.get<TickerRow[]>('/tickers')).data,
+    queryFn: fetchTickers,
   });
 
   // URL <-> form
@@ -54,22 +49,21 @@ export default function ScreenerPage() {
   }, [form]);
 
   // derived table data (filter + sort via pure helpers)
-const watched = form.watch();
+  const watched = form.watch();
 
-const tableRows = React.useMemo(() => {
-  const base = toTickerRows(data);
+  const tableRows: TickerRow[] = React.useMemo(() => {
+    const base = data ?? [];
 
-  const filtered = filterRows(base, {
-    q: watched.q,
-    siMin: watched.siMin,
-    dtcMin: watched.dtcMin,
-    rvolMin: watched.rvolMin,
-    catalyst: watched.catalyst,
-  });
+    const filtered = filterRows(base, {
+      q: watched.q,
+      siMin: watched.siMin,
+      dtcMin: watched.dtcMin,
+      rvolMin: watched.rvolMin,
+      catalyst: watched.catalyst,
+    });
 
-  return sortRows(filtered, watched.sort as SortKeyForSort, watched.dir);
-}, [data, watched]);
-
+    return sortRows(filtered, watched.sort as SortKeyForSort, watched.dir);
+  }, [data, watched]);
 
   // UI states
   if (isLoading) {
