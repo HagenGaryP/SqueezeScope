@@ -5,11 +5,20 @@ import { useQuery } from '@tanstack/react-query';
 import { useWatchlist } from './useWatchlist';
 import { api } from '../../lib/api';
 import type { TickerRow } from '../../lib/types';
+
 import {
   toTickerRows,
   type TickerQueryData,
   TICKERS_QUERY_KEY,
 } from '../tickers/query';
+
+import {
+  formatPrice,
+  formatPercentChange,
+  formatPercent1,
+  formatOneDecimal,
+} from '../tickers/format';
+
 
 export default function WatchlistPage() {
   const { list, remove } = useWatchlist();
@@ -84,12 +93,19 @@ export default function WatchlistPage() {
                   {r.ticker}
                 </Link>
               </td>
-              <td className="text-start">{r.price?.toFixed?.(2) ?? '—'}</td>
-              <td className={`text-start ${Number(r.pctChange) >= 0 ? 'text-success' : 'text-danger'}`}>
-                {typeof r.pctChange === 'number' ? r.pctChange.toFixed(2) : '—'}
+              <td className="text-start">{formatPrice(r.price)}</td>
+
+              <td
+                className={`text-start ${Number(r.pctChange) >= 0 ? 'text-success' : 'text-danger'}`}
+              >
+                {formatPercentChange(
+                  typeof r.pctChange === 'number' ? r.pctChange : Number(r.pctChange)
+                )}
               </td>
-              <td className="text-start">{r.siPublic ?? '—'}</td>
-              <td className="text-start">{r.rvol ?? '—'}</td>
+
+              <td className="text-start">{formatPercent1(r.siPublic)}</td>
+              <td className="text-start">{formatOneDecimal(r.rvol)}</td>
+
 
               <td className="text-start col-fit">
                 {r.catalyst ? <Badge bg="info" className="text-dark">Catalyst</Badge> : '—'}
