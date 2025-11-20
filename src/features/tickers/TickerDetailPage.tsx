@@ -1,6 +1,6 @@
 import { useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { api } from '../../lib/api';
+import { fetchTickerMetrics } from './client';
 import type { TickerMetrics } from '../../lib/types';
 import { Card, Row, Col, Spinner, Alert, Badge, Button, Stack } from 'react-bootstrap';
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
@@ -28,10 +28,7 @@ export default function TickerDetailPage() {
 
   const { data, isLoading, error } = useQuery({
     queryKey: ['ticker', symbol],
-    queryFn: async () => {
-      const res = await api.get<TickerMetrics>(`/tickers/${symbol}`);
-      return res.data;
-    },
+    queryFn: () => fetchTickerMetrics(symbol),
     enabled: Boolean(symbol),
     retry: false,
   });
