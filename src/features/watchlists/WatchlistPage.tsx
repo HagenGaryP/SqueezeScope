@@ -65,11 +65,13 @@ export default function WatchlistPage() {
 
       <Table
         className="table-sticky ss-compact ss-lines ss-hover"
+        striped
+        hover
         variant="dark"
         size="sm"
         responsive
-        striped
       >
+
         <thead>
           <tr>
             <th scope="col" className="text-start">Ticker</th>
@@ -104,8 +106,9 @@ export default function WatchlistPage() {
 
 
               <td className="text-start col-fit">
-                {r.catalyst ? <Badge bg="info" className="text-dark">Catalyst</Badge> : '—'}
+                {r.catalyst ? <Badge bg="warning" text="dark">Yes</Badge> : '—'}
               </td>
+
 
               <td className="text-start col-fit">
                 <Button
