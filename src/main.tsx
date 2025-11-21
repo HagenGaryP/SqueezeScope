@@ -7,7 +7,14 @@ import { ErrorBoundary } from './components/ui/ErrorBoundary';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './styles/globals.css';
 
-const qc = new QueryClient();
+const qc = new QueryClient({
+  defaultOptions: {
+    queries: {
+      // Avoid surprise re-fetches when switching back to the tab.
+      refetchOnWindowFocus: false,
+    },
+  },
+});
 
 async function prepare() {
   const enableMock =
