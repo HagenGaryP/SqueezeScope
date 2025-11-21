@@ -172,6 +172,22 @@ Then open the printed local URL (typically `http://localhost:5173`).
 
 ---
 
+## Screenshots
+
+### Screener
+
+![Screener view](docs/screenshots/screener.png)
+
+### Watchlist
+
+![Watchlist view](docs/screenshots/watchlist.png)
+
+### Ticker detail
+
+![Ticker detail view](docs/screenshots/ticker-detail.png)
+
+---
+
 ## Future work & Azure integration
 
 Planned enhancements focus on replacing the static demo data with a small, Azure-backed backend while keeping the current frontend architecture:
