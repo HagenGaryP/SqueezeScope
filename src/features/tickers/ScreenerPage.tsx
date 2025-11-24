@@ -147,10 +147,12 @@ export default function ScreenerPage() {
               <option value="siBroad">SI% Broad</option>
               <option value="rvol">RVOL</option>
               <option value="dtc">DTC</option>
+              <option value="squeezeScore">Squeeze Score</option>
               <option value="pctChange">% Change</option>
               <option value="price">Price</option>
             </Form.Select>
           </Form.Group>
+
 
           <Col md="auto">
             <Form.Label>Sort Direction</Form.Label>
