@@ -9,7 +9,9 @@ import {
   formatPercentChange,
   formatPercent1,
   formatOneDecimal,
+  formatScore,
 } from '../format';
+import { computeSqueezeScore } from '../squeezeScore';
 
 
 /**
@@ -42,6 +44,7 @@ const COLUMNS: ReadonlyArray<{ label: string; col: SortKey }> = [
   { label: 'SI% (Broad)', col: 'siBroad' },
   { label: 'DTC', col: 'dtc' },
   { label: 'RVOL', col: 'rvol' },
+  { label: 'Score', col: 'squeezeScore' },
 ];
 
 export default function ScreenerTable({ rows, activeSort, dir, onSort }: Props) {
@@ -106,7 +109,7 @@ export default function ScreenerTable({ rows, activeSort, dir, onSort }: Props) 
               <td>{formatPercent1(r.siBroad)}</td>
               <td>{formatOneDecimal(r.dtc)}</td>
               <td>{formatOneDecimal(r.rvol)}</td>
-
+              <td>{formatScore(computeSqueezeScore(r))}</td>
 
               {/* Catalyst: use a badge for quick scanning; fallback em dash when false. */}
               <td>{r.catalyst ? <Badge bg="warning" text="dark">Yes</Badge> : '—'}</td>

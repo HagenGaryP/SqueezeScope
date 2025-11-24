@@ -1,36 +1,37 @@
-import { z } from 'zod';
+import { z } from "zod";
 
 /**
  * Supported keys to sort the list of stocks by a given metric.
  */
 export const sortKeys = [
-  'ticker',
-  'siPublic',
-  'siBroad',
-  'dtc',
-  'rvol',
-  'pctChange',
-  'price',
+  "ticker",
+  "siPublic",
+  "siBroad",
+  "rvol",
+  "dtc",
+  "squeezeScore",
+  "pctChange",
+  "price",
 ] as const;
 
-export type SortKey = typeof sortKeys[number];
+export type SortKey = (typeof sortKeys)[number];
 
 /** Sort direction */
-export const dirKeys = ['asc', 'desc'] as const;
-export type Dir = typeof dirKeys[number];
+export const dirKeys = ["asc", "desc"] as const;
+export type Dir = (typeof dirKeys)[number];
 
 /**
  * Input schema (coerces & supplies defaults from URL/query).
  * Keys are optional *on input* so we can parse raw URL strings.
  */
 export const ScreenerInputSchema = z.object({
-  q: z.string().trim().optional().default(''),
+  q: z.string().trim().optional().default(""),
   siMin: z.coerce.number().min(0).max(100).default(0),
   dtcMin: z.coerce.number().min(0).max(10).default(0),
   rvolMin: z.coerce.number().min(0).max(10).default(0),
   catalyst: z.coerce.boolean().default(false),
-  sort: z.enum(sortKeys).default('ticker'),
-  dir: z.enum(dirKeys).default('asc'),
+  sort: z.enum(sortKeys).default("ticker"),
+  dir: z.enum(dirKeys).default("asc"),
 });
 
 /**
