@@ -1,69 +1,62 @@
-# SqueezeScope — Short-Squeeze Radar (React + TypeScript)
+# SqueezeScope — Short Squeeze Screener (React + TypeScript)
+
+**Live Demo:** https://squeeze-scope.vercel.app/
 
 [![CI](https://github.com/HagenGaryP/SqueezeScope/actions/workflows/ci.yml/badge.svg)](https://github.com/HagenGaryP/SqueezeScope/actions/workflows/ci.yml)
 
-SqueezeScope is a short-squeeze–oriented stock screener built with a modern React + TypeScript stack. It focuses on a realistic, production-minded frontend: typed data models, URL-driven filters, a watchlist, error and empty states, and a mock API in development.
+SqueezeScope is a stock screener for identifying potential short squeeze candidates using common indicators such as short interest (SI%, public and broad float), days to cover (DTC), relative volume (RVOL), and catalyst flags. It also includes a demo "squeeze score" (a lightweight heuristic for UX demonstration, not a validated trading model). The app is built with production-minded frontend practices (typed domain models, URL-synced filters, and a centralized data client) and uses static fixtures in production while exercising an MSW-backed API layer in development.
 
-The goal is to showcase frontend engineering skills on a project that’s small enough to ship but structured like a real app.
-
----
-
-## Overview
-
-SqueezeScope helps you:
-
-- Scan a small universe of tickers with short-interest / squeeze-relevant metrics
-- Filter and sort by SI%, days-to-cover, relative volume, and catalysts
-- Save symbols to a watchlist backed by `localStorage`
-- Drill into a ticker detail view with a 60-day price/volume chart
-
-The app is designed as a static demo in production (no backend required) while still exercising a realistic API layer during development via MSW.
+> Note: The live demo uses **static fixture data** for deterministic, repeatable behavior (no real-time market data).
 
 ---
 
-## Features
+## Highlights
+
+- Typed domain models and a centralized data client
+- URL-synced filters (shareable screener views) and sortable tables
+- React Query for async state, caching, and loading/error UX
+- MSW in development; static fixtures in production (deployable as a static site)
+- Watchlist persistence via `localStorage` with a small tested hook
+- Accessibility-minded UX (semantic landmarks, focus management, keyboard-friendly flows)
+- Resilient UX: error boundary, empty states, and a first-class 404 flow
+- CI quality gates via GitHub Actions (lint, tests, build)
+
+---
+
+## Key features
 
 ### Screener
 
 - Filter by:
   - Ticker search
-  - Minimum short interest (public & broad float)
-  - Days-to-cover (short ratio)
+  - Minimum short interest (public and broad float)
+  - Days to cover (short ratio)
   - Relative volume
   - Catalyst flag
-- Sortable table with sticky headers and keyboard-accessible focus states
-- Filter state is synced to the URL, so views are shareable
+- Sortable table with sticky headers
+- Filter state is synced to the URL (shareable views)
 
 ### Watchlist
 
 - Add/remove tickers from the screener and detail pages
-- Watchlist is stored in `localStorage` via a small, tested custom hook
-- Compact table layout optimized for at-a-glance monitoring
+- Stored in `localStorage` via a small, tested custom hook
+- Compact table layout for at-a-glance monitoring
 
 ### Ticker detail
 
-- Hero strip with key metrics:
-  - Short interest (public & broad float)
-  - Days-to-cover (DTC)
+- Summary strip with:
+  - Short interest (public and broad float)
+  - Days to cover (DTC)
   - Relative volume (RVOL)
-  - Squeeze score
-- 60-day price/volume sparkline via Recharts
+  - Squeeze score (demo)
+- 60-day price/volume chart via Recharts
 - Watchlist toggle integrated into the detail view
 
-### Error & 404 UX
+### Reliability UX
 
 - App-level `ErrorBoundary` with a friendly fallback
-- 404 route with a primary “Back to Screener” call-to-action
-- Semantic landmarks and focus considerations for better accessibility
-
-### Data layer
-
-- Centralized tickers client:
-  - `fetchTickers()`
-  - `fetchTickerMetrics(symbol)`
-- React Query for caching, background refetching, and async state
-- MSW-backed mock API in development
-- Static JSON fixtures in production (no backend dependency)
+- 404 route with a primary "Back to Screener" call-to-action
+- Semantic landmarks and focus considerations for accessibility
 
 ---
 
@@ -75,30 +68,29 @@ The app is designed as a static demo in production (no backend required) while s
 - **Forms & validation:** React Hook Form + Zod
 - **UI:** React-Bootstrap 2, Bootstrap 5, custom CSS (compact dark theme)
 - **Charts:** Recharts 3
-- **Mock API:** MSW 2
+- **Mock API (dev):** MSW 2
 - **HTTP client:** Axios
 - **Testing:** Vitest, Testing Library, jest-dom
-- **CI:** GitHub Actions (lint, typecheck, build on PRs)
+- **CI:** GitHub Actions (lint, tests, build on PRs)
 
 ---
 
-## Dev vs prod behavior
+## How data works (dev vs production)
 
-### Development
+### Development (MSW)
 
-- The app runs as a typical SPA backed by a mock API.
-- MSW is enabled and intercepts:
+- MSW intercepts:
   - `/api/tickers`
   - `/api/tickers/:symbol`
-- The tickers client uses Axios to hit those endpoints, so the UI still talks to an “API layer” even though it’s mocked.
+- The UI still talks to an "API layer" via Axios, but responses are mocked.
 
-### Production demo
+### Production (static demo)
 
 - MSW is not started by default in production builds.
-- The tickers client transparently switches to typed static fixtures:
-  - `tickerFixtures` for screener + watchlist data
+- The tickers client switches to typed static fixtures:
+  - `tickerFixtures` for screener + watchlist
   - `findOrCreateMetrics(symbol)` for ticker detail metrics and series
-- This makes the app deployable as a fully static site (Netlify, Vercel, GitHub Pages, Azure Static Web Apps, etc.) with no backend.
+- Result: deployable as a **fully static site** (Vercel/Netlify/etc.) with no backend.
 
 ---
 
@@ -107,68 +99,68 @@ The app is designed as a static demo in production (no backend required) while s
 ### Prerequisites
 
 - Node 20+ recommended
-- npm (comes with Node)
+- npm (bundled with Node)
 
-### Setup & local dev
+### Install & run (local dev)
 
-From the project root:
+Clone the repo, then from the project root:
 
-    # install dependencies
-    npm install
+```bash
+# install dependencies (recommended: deterministic install using package-lock)
+npm ci
+# or: npm install
 
-    # run dev server (MSW-enabled)
-    npm run dev
+# run dev server (MSW-enabled)
+npm run dev
+```
 
-Then open the printed local URL (typically `http://localhost:5173`).
+Vite will print the local URL in the terminal (default: `http://localhost:5173`).
 
-**Key routes**
+### Key routes
 
 - `/` — Home
-- `/screener` — Screener with filters & sortable table
+- `/screener` — Screener with filters and a sortable table
 - `/ticker/:symbol` — Ticker detail (e.g. `/ticker/TNYA`)
 - `/watchlists` — Watchlist view
 - `/*` — 404 page
 
 ### Quality checks
 
-    # unit tests
-    npm run test
-
-    # lint (and associated static checks)
-    npm run lint
-
-    # production build
-    npm run build
-
-    # preview production build locally
-    npm run preview
+```bash
+npm test
+npm run lint
+npm run build
+npm run preview
+```
 
 ---
 
 ## Project structure
 
-    src/
-      main.tsx
-      app/
-        router.tsx          # central route config
-      components/
-        Layout/             # AppShell, NavBar
-        ui/                 # ErrorBoundary, shared UI helpers
-      features/
-        tickers/            # Screener, detail page, query + filter + sort helpers
-        watchlists/         # watchlist hook, storage helpers, watchlist page
-      lib/
-        api.ts              # Axios instance
-        types.ts            # domain types (TickerRow, TickerMetrics, etc.)
-      mocks/
-        browser.ts          # MSW worker setup
-        handlers.ts         # /api/tickers and /api/tickers/:symbol handlers
-        data/               # tickers.json, metrics.json (fixtures)
-      styles/
-        globals.css         # global theme + layout
-      test/
-        setup.ts            # Vitest + Testing Library setup
-        smoke.test.ts       # basic app smoke test
+```txt
+src/
+  main.tsx
+  app/
+    router.tsx          # central route config
+  components/
+    Layout/             # AppShell, NavBar
+    ui/                 # ErrorBoundary, shared UI helpers
+  features/
+    tickers/            # Screener, detail page, query + filter + sort helpers
+    watchlists/         # watchlist hook, storage helpers, watchlist page
+  lib/
+    api.ts              # Axios instance
+    types.ts            # domain types (TickerRow, TickerMetrics, etc.)
+  mocks/
+    browser.ts          # MSW worker setup
+    handlers.ts         # /api/tickers and /api/tickers/:symbol handlers
+    data/               # tickers.json, metrics.json (fixtures)
+  styles/
+    globals.css         # global theme + layout
+  test/
+    setup.ts            # Vitest + Testing Library setup
+    smoke.test.ts       # basic app smoke test
+```
 
 ---
 
@@ -188,33 +180,14 @@ Then open the printed local URL (typically `http://localhost:5173`).
 
 ---
 
-## Future work & Azure integration
+## Roadmap
 
-Planned enhancements focus on replacing the static demo data with a small, Azure-backed backend while keeping the current frontend architecture:
+The current sprint intentionally avoids real market data ingestion. Future iterations can replace fixtures with a small backend while keeping the existing frontend/data-client architecture.
 
-- **Azure Static Web Apps**
-  - Host the React SPA on Azure Static Web Apps with CI/CD from GitHub Actions.
-- **Azure Functions (serverless API)**
-  - Introduce a minimal Azure Functions API that serves tickers and metrics from a real data source.
-  - Maintain the same REST shape used by the current MSW handlers.
-- **Azure data store**
-  - Persist watchlists and/or ticker snapshots using Azure Cosmos DB or Azure SQL.
-  - Optionally extend the data model with user-specific preferences (e.g. saved filter presets).
-- **Observability**
-  - Add basic monitoring and logging via Azure Application Insights for API calls and key user flows.
-
-These are intentionally scoped so the existing frontend and tickers client can be reused with minimal changes, while allowing the project to demonstrate practical Azure experience.
-
----
-
-## What this project demonstrates
-
-- Feature-oriented React architecture with thin UI components and pure helper functions
-- A centralized, typed data client that cleanly separates dev (MSW) and prod (static fixtures) flows
-- URL-driven filters using React Hook Form + Zod
-- A practical watchlist implementation with `localStorage` persistence and tests
-- CI-enforced quality gates (lint, tests, build) suitable for a PR-driven workflow
-- A clear path to Azure integration (Static Web Apps + Functions + managed data store)
+- Add a minimal serverless API (Azure Functions) that preserves the current REST shape
+- Persist user watchlists and snapshots (Cosmos DB or Azure SQL)
+- Add basic observability (Application Insights)
+- Optional: add an Azure Static Web Apps deployment pipeline in parallel to Vercel (Azure hosting/CI/CD)
 
 ---
 
