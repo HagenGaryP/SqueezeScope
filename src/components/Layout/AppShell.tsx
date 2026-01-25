@@ -6,7 +6,7 @@ export default function AppShell() {
   return (
     <>
       <NavBar />
-      <Container className="py-4">
+      <Container className="py-4" fluid="lg">
         <Outlet />
       </Container>
     </>

@@ -88,7 +88,7 @@ export default function ScreenerPage() {
 
       <Form className="mb-3" noValidate onSubmit={(e) => e.preventDefault()}>
         <Row className="g-2 align-items-end">
-          <Form.Group as={Col} md={3} controlId="q">
+          <Form.Group as={Col} xs={12} md={4} controlId="q">
             <Form.Label>Search</Form.Label>
             <Form.Control
               placeholder="Ticker…"
@@ -98,7 +98,7 @@ export default function ScreenerPage() {
             />
           </Form.Group>
 
-          <Form.Group as={Col} md={2} controlId="siMin">
+          <Form.Group as={Col} xs={6} md={2} controlId="siMin">
             <Form.Label>SI% (min)</Form.Label>
             <Form.Control
               type="number"
@@ -109,7 +109,7 @@ export default function ScreenerPage() {
             />
           </Form.Group>
 
-          <Form.Group as={Col} md={2} controlId="dtcMin">
+          <Form.Group as={Col} xs={6} md={2} controlId="dtcMin">
             <Form.Label>DTC (min)</Form.Label>
             <Form.Control
               type="number"
@@ -120,7 +120,7 @@ export default function ScreenerPage() {
             />
           </Form.Group>
 
-          <Form.Group as={Col} md={2} controlId="rvolMin">
+          <Form.Group as={Col} xs={6} md={2} controlId="rvolMin">
             <Form.Label>RVOL (min)</Form.Label>
             <Form.Control
               type="number"
@@ -131,15 +131,18 @@ export default function ScreenerPage() {
             />
           </Form.Group>
 
-          <Form.Group as={Col} md={1} controlId="catalyst">
+          <Form.Group as={Col} xs={6} md="auto" controlId="catalyst" className="ms-md-auto d-flex align-items-end">
             <Form.Check
               type="checkbox"
               label="Catalyst"
+              className="mb-1"
               {...form.register('catalyst')}
             />
           </Form.Group>
+          </Row>
 
-          <Form.Group as={Col} md={2} controlId="sort">
+          <Row className="g-2 align-items-end mt-1">
+          <Form.Group as={Col} xs={12} md={3} controlId="sort">
             <Form.Label>Sort</Form.Label>
             <Form.Select {...form.register('sort')}>
               <option value="ticker">Ticker</option>
@@ -154,7 +157,7 @@ export default function ScreenerPage() {
           </Form.Group>
 
 
-          <Col md="auto">
+          <Col xs={12} md="auto" className="ms-md-auto">
             <Form.Label>Sort Direction</Form.Label>
             <div>
               <Button
