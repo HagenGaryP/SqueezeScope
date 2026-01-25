@@ -4,7 +4,7 @@ import { Link, NavLink } from 'react-router-dom'
 export default function NavBar() {
   return (
     <Navbar bg="dark" variant="dark" expand="sm">
-      <Container>
+      <Container fluid="lg">
         <Navbar.Brand as={Link} to="/">SqueezeScope</Navbar.Brand>
         <Navbar.Toggle />
         <Navbar.Collapse>
