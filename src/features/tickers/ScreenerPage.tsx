@@ -3,7 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Form, Row, Col, Spinner, Button, Alert } from 'react-bootstrap';
+import { Form, Spinner, Button, Alert } from 'react-bootstrap';
 
 import type { TickerRow } from '../../lib/types';
 
@@ -45,37 +45,31 @@ export default function ScreenerPage() {
 
   useScreenerUrlSync(form, setParams);
 
-  // Handlers
-  const onSort = React.useCallback(
-    (col: SortKey) => {
-      const cur = form.getValues();
-      if (col === cur.sort) {
-        form.setValue('dir', cur.dir === 'asc' ? 'desc' : 'asc');
-      } else {
-        form.setValue('sort', col);
-        form.setValue('dir', 'asc');
-      }
-    },
-    [form]
-  );
+  // Sort handler
+  const onSort = (col: SortKey) => {
+    const cur = form.getValues();
+    if (col === cur.sort) {
+      form.setValue('dir', cur.dir === 'asc' ? 'desc' : 'asc');
+    } else {
+      form.setValue('sort', col);
+      form.setValue('dir', 'asc');
+    }
+  };
 
   const watched = form.watch();
-
   const chips = React.useMemo(() => getActiveFilterChips(watched), [watched]);
 
-  const removeChip = React.useCallback(
-    (id: ActiveFilterId) => {
-      form.setValue(id, CLEAR_VALUE_BY_ID[id], {
-        shouldDirty: true,
-        shouldValidate: true,
-      });
-    },
-    [form]
-  );
+  const removeChip = (id: ActiveFilterId) => {
+    form.setValue(id, CLEAR_VALUE_BY_ID[id], {
+      shouldDirty: true,
+      shouldTouch: true,
+      shouldValidate: true,
+    });
+  };
 
-  const clearAll = React.useCallback(() => {
+  const clearAll = () => {
     form.reset(SCREENER_DEFAULTS);
-  }, [form]);
+  };
 
   // Derived rows (filter + sort)
   const tableRows: TickerRow[] = React.useMemo(() => {
@@ -112,103 +106,130 @@ export default function ScreenerPage() {
       <h2 id="screener-heading" className="mb-3">
         Screener
       </h2>
+
       <div className="border rounded-3 p-2 mb-3 bg-light text-dark shadow-sm">
-        <Form className="mb-3" noValidate onSubmit={(e) => e.preventDefault()}>
-          <Row className="g-2 align-items-end">
-            <Form.Group as={Col} xs={12} md={4} controlId="q">
-              <Form.Label>Search</Form.Label>
-              <Form.Control
-                placeholder="Ticker…"
-                inputMode="search"
-                autoCapitalize="characters"
-                {...form.register('q')}
-              />
-            </Form.Group>
+        {/* Toolbar */}
+        <Form className="mb-2" noValidate onSubmit={(e) => e.preventDefault()}>
+          {/* < lg: stacked (filters row, then sort row)
+              >= lg: single row (sort/direction pushed right) */}
+          <div className="d-flex flex-column flex-lg-row align-items-stretch align-items-lg-end gap-2">
+            {/* Left cluster: Search + filters */}
+            <div className="d-flex flex-wrap align-items-end gap-2">
+              <Form.Group controlId="q">
+                <Form.Label className="small text-body-secondary mb-1">Search</Form.Label>
+                <Form.Control
+                  size="sm"
+                  placeholder="Ticker…"
+                  inputMode="search"
+                  autoCapitalize="characters"
+                  style={{ width: '9ch' }}
+                  {...form.register('q')}
+                />
+              </Form.Group>
 
-            <Form.Group as={Col} xs={6} md={2} controlId="siMin">
-              <Form.Label>SI% (min)</Form.Label>
-              <Form.Control
-                type="number"
-                step={1}
-                min={0}
-                max={100}
-                {...form.register('siMin', { valueAsNumber: true })}
-              />
-            </Form.Group>
+              <Form.Group controlId="siMin">
+                <Form.Label className="small text-body-secondary mb-1">SI%</Form.Label>
+                <Form.Control
+                  size="sm"
+                  type="number"
+                  step={1}
+                  min={0}
+                  max={100}
+                  style={{ width: '6ch' }}
+                  {...form.register('siMin', { valueAsNumber: true })}
+                />
+              </Form.Group>
 
-            <Form.Group as={Col} xs={6} md={2} controlId="dtcMin">
-              <Form.Label>DTC (min)</Form.Label>
-              <Form.Control
-                type="number"
-                step={0.1}
-                min={0}
-                max={10}
-                {...form.register('dtcMin', { valueAsNumber: true })}
-              />
-            </Form.Group>
+              <Form.Group controlId="dtcMin">
+                <Form.Label className="small text-body-secondary mb-1">DTC</Form.Label>
+                <Form.Control
+                  size="sm"
+                  type="number"
+                  step={0.1}
+                  min={0}
+                  max={10}
+                  style={{ width: '6ch' }}
+                  {...form.register('dtcMin', { valueAsNumber: true })}
+                />
+              </Form.Group>
 
-            <Form.Group as={Col} xs={6} md={2} controlId="rvolMin">
-              <Form.Label>RVOL (min)</Form.Label>
-              <Form.Control
-                type="number"
-                step={0.1}
-                min={0}
-                max={10}
-                {...form.register('rvolMin', { valueAsNumber: true })}
-              />
-            </Form.Group>
+              <Form.Group controlId="rvolMin">
+                <Form.Label className="small text-body-secondary mb-1">RVOL</Form.Label>
+                <Form.Control
+                  size="sm"
+                  type="number"
+                  step={0.1}
+                  min={0}
+                  max={10}
+                  style={{ width: '6ch' }}
+                  {...form.register('rvolMin', { valueAsNumber: true })}
+                />
+              </Form.Group>
 
-            <Form.Group
-              as={Col}
-              xs={6}
-              md="auto"
-              controlId="catalyst"
-              className="ms-md-auto d-flex align-items-end"
-            >
-              <Form.Check type="checkbox" label="Catalyst" className="mb-1" {...form.register('catalyst')} />
-            </Form.Group>
-          </Row>
-
-          <Row className="g-2 align-items-end mt-1">
-            <Form.Group as={Col} xs={12} md={3} controlId="sort">
-              <Form.Label>Sort</Form.Label>
-              <Form.Select {...form.register('sort')}>
-                <option value="ticker">Ticker</option>
-                <option value="siPublic">SI% Public</option>
-                <option value="siBroad">SI% Broad</option>
-                <option value="rvol">RVOL</option>
-                <option value="dtc">DTC</option>
-                <option value="squeezeScore">Squeeze Score</option>
-                <option value="pctChange">% Change</option>
-                <option value="price">Price</option>
-              </Form.Select>
-            </Form.Group>
-
-            <Col xs={12} md="auto" className="ms-md-auto">
-              <Form.Label>Sort Direction</Form.Label>
               <div>
+                <div className="small text-body-secondary mb-1">&nbsp;</div>
                 <Button
                   type="button"
-                  variant={watched.dir === 'asc' ? 'primary' : 'secondary'}
                   size="sm"
-                  className="me-2"
-                  onClick={() => form.setValue('dir', 'asc')}
-                  aria-pressed={watched.dir === 'asc'}
+                  className="rounded-pill py-0"
+                  style={{ height: 31, whiteSpace: 'nowrap' }}
+                  variant={watched.catalyst ? 'primary' : 'outline-secondary'}
+                  onClick={() =>
+                    form.setValue('catalyst', !watched.catalyst, {
+                      shouldDirty: true,
+                      shouldTouch: true,
+                      shouldValidate: true,
+                    })
+                  }
+                  aria-pressed={watched.catalyst}
+                  aria-label={watched.catalyst ? 'Disable Catalyst filter' : 'Enable Catalyst filter'}
                 >
-                  Asc
-                </Button>
-                <Button
-                  type="button"
-                  variant={watched.dir === 'desc' ? 'primary' : 'secondary'}
-                  size="sm"
-                  onClick={() => form.setValue('dir', 'desc')}
-                  aria-pressed={watched.dir === 'desc'}
-                >
-                  Desc
+                  Catalyst
                 </Button>
               </div>
-            </Col>
-          </Row>
+            </div>
+
+            {/* Right cluster: Sort + direction (on its own row under lg, on same row at lg+) */}
+            <div className="ms-lg-auto d-flex flex-wrap flex-md-nowrap align-items-end gap-2 justify-content-start justify-content-lg-end">
+              <Form.Group controlId="sort">
+                <Form.Label className="small text-body-secondary mb-1">Sort</Form.Label>
+                <Form.Select size="sm" style={{ width: '16ch' }} {...form.register('sort')}>
+                  <option value="ticker">Ticker</option>
+                  <option value="siPublic">SI% Public</option>
+                  <option value="siBroad">SI% Broad</option>
+                  <option value="rvol">RVOL</option>
+                  <option value="dtc">DTC</option>
+                  <option value="squeezeScore">Squeeze Score</option>
+                  <option value="pctChange">% Change</option>
+                  <option value="price">Price</option>
+                </Form.Select>
+              </Form.Group>
+
+              <div>
+                <div className="small text-body-secondary mb-1">Direction</div>
+                <div className="btn-group" role="group" aria-label="Sort direction">
+                  <Button
+                    type="button"
+                    variant={watched.dir === 'asc' ? 'primary' : 'outline-secondary'}
+                    size="sm"
+                    onClick={() => form.setValue('dir', 'asc')}
+                    aria-pressed={watched.dir === 'asc'}
+                  >
+                    Asc
+                  </Button>
+                  <Button
+                    type="button"
+                    variant={watched.dir === 'desc' ? 'primary' : 'outline-secondary'}
+                    size="sm"
+                    onClick={() => form.setValue('dir', 'desc')}
+                    aria-pressed={watched.dir === 'desc'}
+                  >
+                    Desc
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </div>
         </Form>
 
         <ScreenerSummary
