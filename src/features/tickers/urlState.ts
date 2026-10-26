@@ -2,25 +2,33 @@ import { useEffect } from 'react';
 import type { UseFormReturn } from 'react-hook-form';
 import {
   ScreenerInputSchema,
-  ScreenerFormSchema,
+  SCREENER_DEFAULTS,
   type ScreenerValues,
-  type SortKey,
-  type Dir,
 } from './screenerSchema';
 
+/**
+ * Parses screener state from URL search params. Never throws: each field is validated
+ * on its own and falls back to its default when missing, malformed or out of range,
+ * so a hand-edited or stale shared URL degrades to defaults instead of crashing the page.
+ */
 export function valuesFromParams(params: URLSearchParams): ScreenerValues {
-  const raw = {
-    q: params.get('q') ?? '',
-    siMin: params.get('siMin') ?? '0',
-    dtcMin: params.get('dtcMin') ?? '0',
-    rvolMin: params.get('rvolMin') ?? '0',
+  const shape = ScreenerInputSchema.shape;
+  const field = <K extends keyof ScreenerValues>(key: K, raw: unknown): ScreenerValues[K] => {
+    const result = shape[key].safeParse(raw);
+    return result.success ? (result.data as ScreenerValues[K]) : SCREENER_DEFAULTS[key];
+  };
+  const get = (key: string) => params.get(key) ?? undefined;
+
+  return {
+    q: field('q', get('q')),
+    siMin: field('siMin', get('siMin')),
+    dtcMin: field('dtcMin', get('dtcMin')),
+    rvolMin: field('rvolMin', get('rvolMin')),
     // Pass a real boolean: z.coerce.boolean() would turn the string 'false' into true.
     catalyst: params.get('catalyst') === '1',
-    sort: (params.get('sort') ?? 'ticker') as SortKey,
-    dir: (params.get('dir') ?? 'asc') as Dir,
+    sort: field('sort', get('sort')),
+    dir: field('dir', get('dir')),
   };
-  const coerced = ScreenerInputSchema.parse(raw);
-  return ScreenerFormSchema.parse(coerced);
 }
 
 export function toSearchParams(v: ScreenerValues): URLSearchParams {

@@ -171,4 +171,23 @@ describe('ScreenerPage toolbar', () => {
     const group = await screen.findByRole('group', { name: 'Sort Direction' });
     expect(within(group).getByRole('button', { name: 'Asc' })).toHaveAttribute('aria-pressed', 'true');
   });
+
+  it('renders with defaults instead of crashing on invalid URL params', async () => {
+    renderAt('/screener?siMin=500&dtcMin=abc&sort=bogus&dir=up&rvolMin=2');
+    expect(await screen.findByRole('heading', { name: 'Screener' })).toBeInTheDocument();
+    expect(screen.getByLabelText('SI% (min)')).toHaveValue(0);
+    expect(screen.getByLabelText('RVOL (min)')).toHaveValue(2);
+    expect(screen.getByRole('status')).toHaveTextContent('Sorted by Ticker, ascending · 1 filter active');
+  });
+
+  it('survives an out-of-range value typed into a filter (written to the URL)', async () => {
+    const user = userEvent.setup();
+    renderAt('/screener');
+    const si = await screen.findByLabelText('SI% (min)');
+    await user.clear(si);
+    await user.type(si, '150');
+    expect(params().get('siMin')).toBe('150');
+    expect(screen.getByRole('heading', { name: 'Screener' })).toBeInTheDocument();
+    expect(screen.getByRole('status')).toHaveTextContent('Showing 0 of 3 tickers');
+  });
 });
