@@ -4,9 +4,11 @@ export type ActiveFilter = {
   key: FilterKey;
   /** Visible chip text, e.g. "SI% ≥ 10". */
   text: string;
-  /** Accessible name for the chip's remove action. */
+  /** Accessible name for the chip's remove action; includes the visible text (WCAG 2.5.3). */
   removeLabel: string;
 };
+
+const removeLabel = (name: string, text: string) => `Remove ${name} filter: ${text}`;
 
 const isSet = (n: number | undefined): n is number =>
   typeof n === 'number' && !Number.isNaN(n) && n !== 0;
@@ -21,19 +23,24 @@ export function getActiveFilters(v: Partial<ScreenerValues>): ActiveFilter[] {
 
   const q = (v.q ?? '').trim();
   if (q) {
-    out.push({ key: 'q', text: `Search: ${q}`, removeLabel: 'Remove Search filter' });
+    const text = `Search: ${q}`;
+    out.push({ key: 'q', text, removeLabel: removeLabel('Search', text) });
   }
   if (isSet(v.siMin)) {
-    out.push({ key: 'siMin', text: `SI% ≥ ${v.siMin}`, removeLabel: 'Remove Short interest filter' });
+    const text = `SI% ≥ ${v.siMin}`;
+    out.push({ key: 'siMin', text, removeLabel: removeLabel('Short interest', text) });
   }
   if (isSet(v.dtcMin)) {
-    out.push({ key: 'dtcMin', text: `DTC ≥ ${v.dtcMin}`, removeLabel: 'Remove Days to cover filter' });
+    const text = `DTC ≥ ${v.dtcMin}`;
+    out.push({ key: 'dtcMin', text, removeLabel: removeLabel('Days to cover', text) });
   }
   if (isSet(v.rvolMin)) {
-    out.push({ key: 'rvolMin', text: `RVOL ≥ ${v.rvolMin}`, removeLabel: 'Remove Relative volume filter' });
+    const text = `RVOL ≥ ${v.rvolMin}`;
+    out.push({ key: 'rvolMin', text, removeLabel: removeLabel('Relative volume', text) });
   }
   if (v.catalyst) {
-    out.push({ key: 'catalyst', text: 'Catalyst only', removeLabel: 'Remove Catalyst filter' });
+    const text = 'Catalyst only';
+    out.push({ key: 'catalyst', text, removeLabel: removeLabel('Catalyst', text) });
   }
 
   return out;

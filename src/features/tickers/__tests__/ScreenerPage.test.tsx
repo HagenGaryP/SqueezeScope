@@ -63,8 +63,8 @@ describe('ScreenerPage toolbar', () => {
     const list = await screen.findByRole('list', { name: 'Active filters' });
     const chips = within(list).getAllByRole('button');
     expect(chips.map((c) => c.getAttribute('aria-label'))).toEqual([
-      'Remove Short interest filter',
-      'Remove Catalyst filter',
+      'Remove Short interest filter: SI% ≥ 10',
+      'Remove Catalyst filter: Catalyst only',
     ]);
     expect(screen.getByRole('status')).toHaveTextContent(
       'Showing 2 of 3 tickers · Sorted by DTC, descending · 2 filters active'
@@ -75,7 +75,7 @@ describe('ScreenerPage toolbar', () => {
     const user = userEvent.setup();
     renderAt('/screener');
     await user.click(await screen.findByLabelText('Catalyst'));
-    expect(screen.getByRole('button', { name: 'Remove Catalyst filter' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /^Remove Catalyst filter/ })).toBeInTheDocument();
     expect(params().get('catalyst')).toBe('1');
     expect(screen.getByRole('status')).toHaveTextContent('Showing 2 of 3 tickers');
   });
@@ -83,24 +83,24 @@ describe('ScreenerPage toolbar', () => {
   it('removing a chip resets the control, results and URL', async () => {
     const user = userEvent.setup();
     renderAt('/screener?siMin=10&rvolMin=1.5');
-    await user.click(await screen.findByRole('button', { name: 'Remove Short interest filter' }));
+    await user.click(await screen.findByRole('button', { name: /^Remove Short interest filter/ }));
 
     expect(screen.getByLabelText('SI% (min)')).toHaveValue(0);
     expect(params().has('siMin')).toBe(false);
     expect(params().get('rvolMin')).toBe('1.5');
     expect(screen.getByRole('status')).toHaveTextContent('Showing 2 of 3 tickers · Sorted by Ticker, ascending · 1 filter active');
     // Focus moves to the remaining chip instead of being lost.
-    expect(screen.getByRole('button', { name: 'Remove Relative volume filter' })).toHaveFocus();
+    expect(screen.getByRole('button', { name: /^Remove Relative volume filter/ })).toHaveFocus();
   });
 
   it('chip removal is keyboard operable (Enter and Space)', async () => {
     const user = userEvent.setup();
     renderAt('/screener?q=a&catalyst=1');
-    const searchChip = await screen.findByRole('button', { name: 'Remove Search filter' });
+    const searchChip = await screen.findByRole('button', { name: /^Remove Search filter/ });
     searchChip.focus();
     await user.keyboard('{Enter}');
     expect(screen.getByLabelText('Search')).toHaveValue('');
-    const catalystChip = screen.getByRole('button', { name: 'Remove Catalyst filter' });
+    const catalystChip = screen.getByRole('button', { name: /^Remove Catalyst filter/ });
     expect(catalystChip).toHaveFocus();
     await user.keyboard(' ');
     expect(screen.getByLabelText('Catalyst')).not.toBeChecked();
@@ -140,10 +140,30 @@ describe('ScreenerPage toolbar', () => {
       'dtcMin',
       'rvolMin',
       'catalyst',
-      'Remove Catalyst filter',
+      'Remove Catalyst filter: Catalyst only',
       'Clear all',
       'sort',
     ]);
+  });
+
+  it('updates the summary live when sort and direction change', async () => {
+    const user = userEvent.setup();
+    renderAt('/screener');
+    await user.selectOptions(await screen.findByLabelText('Sort'), 'rvol');
+    expect(screen.getByRole('status')).toHaveTextContent('Sorted by RVOL, ascending');
+    await user.click(screen.getByRole('button', { name: 'Desc' }));
+    expect(screen.getByRole('status')).toHaveTextContent('Sorted by RVOL, descending');
+    expect(params().get('sort')).toBe('rvol');
+    expect(params().get('dir')).toBe('desc');
+    const firstTicker = screen.getAllByRole('row')[1];
+    expect(firstTicker).toHaveTextContent('CCC');
+  });
+
+  it('moves focus to the previous chip when the last chip in the row is removed', async () => {
+    const user = userEvent.setup();
+    renderAt('/screener?siMin=10&catalyst=1');
+    await user.click(await screen.findByRole('button', { name: /^Remove Catalyst filter/ }));
+    expect(screen.getByRole('button', { name: /^Remove Short interest filter/ })).toHaveFocus();
   });
 
   it('labels the sort direction buttons as a group', async () => {

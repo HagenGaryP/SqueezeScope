@@ -121,7 +121,7 @@ export default function ScreenerPage() {
             />
           </Form.Group>
 
-          <Form.Group as={Col} xs={4} sm={2} lg={1} className="ss-toolbar-num" controlId="siMin">
+          <Form.Group as={Col} xs={4} sm={2} lg={1} controlId="siMin">
             <Form.Label className="small mb-1">SI% (min)</Form.Label>
             <Form.Control
               size="sm"
@@ -133,7 +133,7 @@ export default function ScreenerPage() {
             />
           </Form.Group>
 
-          <Form.Group as={Col} xs={4} sm={2} lg={1} className="ss-toolbar-num" controlId="dtcMin">
+          <Form.Group as={Col} xs={4} sm={2} lg={1} controlId="dtcMin">
             <Form.Label className="small mb-1">DTC (min)</Form.Label>
             <Form.Control
               size="sm"
@@ -145,7 +145,7 @@ export default function ScreenerPage() {
             />
           </Form.Group>
 
-          <Form.Group as={Col} xs={4} sm={2} lg={1} className="ss-toolbar-num" controlId="rvolMin">
+          <Form.Group as={Col} xs={4} sm={2} lg={1} controlId="rvolMin">
             <Form.Label className="small mb-1">RVOL (min)</Form.Label>
             <Form.Control
               size="sm"

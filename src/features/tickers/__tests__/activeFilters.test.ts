@@ -25,10 +25,17 @@ describe('getActiveFilters', () => {
   it('builds readable chip text and descriptive remove labels', () => {
     const out = getActiveFilters(values({ q: 'gme', siMin: 10, catalyst: true }));
     expect(out).toEqual([
-      { key: 'q', text: 'Search: gme', removeLabel: 'Remove Search filter' },
-      { key: 'siMin', text: 'SI% ≥ 10', removeLabel: 'Remove Short interest filter' },
-      { key: 'catalyst', text: 'Catalyst only', removeLabel: 'Remove Catalyst filter' },
+      { key: 'q', text: 'Search: gme', removeLabel: 'Remove Search filter: Search: gme' },
+      { key: 'siMin', text: 'SI% ≥ 10', removeLabel: 'Remove Short interest filter: SI% ≥ 10' },
+      { key: 'catalyst', text: 'Catalyst only', removeLabel: 'Remove Catalyst filter: Catalyst only' },
     ]);
+  });
+
+  it('includes the visible chip text in every remove label', () => {
+    const out = getActiveFilters(
+      values({ q: 'x', siMin: 1, dtcMin: 1, rvolMin: 1, catalyst: true })
+    );
+    for (const f of out) expect(f.removeLabel).toContain(f.text);
   });
 
   it('treats whitespace-only search as inactive and trims chip text', () => {
