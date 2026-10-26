@@ -6,7 +6,7 @@
 
 SqueezeScope is a stock screener for identifying potential short squeeze candidates using common indicators such as short interest (SI%, public and broad float), days to cover (DTC), relative volume (RVOL), and catalyst flags. It also includes a demo "squeeze score" (a lightweight heuristic for UX demonstration, not a validated trading model). The app is built with production-minded frontend practices (typed domain models, URL-synced filters, and a centralized data client) and uses static fixtures in production while exercising an MSW-backed API layer in development.
 
-> Note: The live demo uses **static fixture data** for deterministic, repeatable behavior (no real-time market data).
+> Note: The live demo uses **static fixture data** (no real-time market data). Screener and watchlist rows are fixed; ticker detail metrics are fixed for TNYA, GME, AMC, CVNA and PLTR and randomly generated on each load for any other symbol.
 
 ---
 
@@ -51,7 +51,7 @@ SqueezeScope is a stock screener for identifying potential short squeeze candida
   - Days to cover (DTC)
   - Relative volume (30-day RVOL)
   - Squeeze score (demo)
-- Price chart via Recharts (fixture series; tickers without fixture metrics get a synthesized 60-day series)
+- Price chart via Recharts: fixture tickers (TNYA, GME, AMC, CVNA, PLTR) show a short fixture series; any other symbol gets randomly generated metrics and a 60-day series
 - Watchlist toggle integrated into the detail view
 
 ### Reliability UX
@@ -100,7 +100,7 @@ SqueezeScope is a stock screener for identifying potential short squeeze candida
 
 ### Prerequisites
 
-- Node 20.19+ or 22.12+ (required by Vite 7; CI uses Node 22)
+- Node 20.19+, 22.12+ or 24+ (required by Vite 7 and jsdom 27; CI uses Node 22)
 - npm (bundled with Node)
 
 ### Install & run (local dev)
