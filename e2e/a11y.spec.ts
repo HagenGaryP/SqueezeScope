@@ -46,3 +46,31 @@ for (const { path, ready, table } of routes) {
     await expect(page.getByRole('heading', { level: 1 })).toHaveCount(1);
   });
 }
+
+test('direct load of the lazy ticker route renders without console warnings', async ({ page }) => {
+  const messages: string[] = [];
+  page.on('console', (m) => {
+    if (m.type() === 'warning' || m.type() === 'error') messages.push(m.text());
+  });
+  page.on('pageerror', (e) => messages.push(e.message));
+  await page.goto('/ticker/GME');
+  await expect(page.getByRole('heading', { level: 1, name: 'GME' })).toBeVisible();
+  await expect(page.locator('svg.recharts-surface')).toHaveCount(1);
+  expect(messages).toEqual([]);
+});
+
+test('a stale ticker chunk (e.g. after a redeploy) recovers with one reload', async ({ page }) => {
+  let chunkRequests = 0;
+  // First request for the lazy chunk fails as it would after its hashed file is removed.
+  await page.route('**/assets/TickerDetailPage-*.js', (route) =>
+    chunkRequests++ === 0 ? route.fulfill({ status: 404, body: 'gone' }) : route.continue()
+  );
+  let loads = 0;
+  page.on('load', () => loads++);
+
+  await page.goto('/screener');
+  await page.getByRole('link', { name: 'TNYA' }).click();
+  await expect(page.getByRole('heading', { level: 1, name: 'TNYA' })).toBeVisible();
+  expect(page.url()).toMatch(/\/ticker\/TNYA$/);
+  expect(loads).toBe(2); // initial load + exactly one reload
+});
