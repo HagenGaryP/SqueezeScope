@@ -7,10 +7,11 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint . --ext .ts,.tsx",
-    "typecheck": "tsc --noEmit -p tsconfig.app.json && tsc --noEmit -p tsconfig.node.json",
+    "typecheck": "tsc --noEmit -p tsconfig.app.json && tsc --noEmit -p tsconfig.node.json && tsc --noEmit -p tsconfig.e2e.json",
     "test": "vitest",
     "test:run": "vitest run",
     "test:ui": "vitest --ui",
+    "test:a11y": "playwright test",
     "preview": "vite preview",
     "build:mock": "VITE_ENABLE_MSW=1 vite build",
     "preview:mock": "VITE_ENABLE_MSW=1 vite preview"
@@ -31,7 +32,9 @@
     "zod": "^4.1.9"
   },
   "devDependencies": {
+    "@axe-core/playwright": "4.13.0",
     "@eslint/js": "^9.33.0",
+    "@playwright/test": "1.63.0",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.0",
     "@testing-library/user-event": "^14.6.1",
@@ -57,6 +60,7 @@
     ]
   },
   "overrides": {
-    "js-yaml": "4.1.1"
+    "js-yaml": "4.1.1",
+    "playwright-core": "1.63.0"
   }
 }
