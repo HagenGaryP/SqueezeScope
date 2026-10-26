@@ -7,7 +7,6 @@ function makeTickerRow(
   partial: Partial<TickerRow> & Pick<TickerRow, 'ticker'>
 ): TickerRow {
   return {
-    ticker: partial.ticker,
     price: 0,
     pctChange: 0,
     siPublic: 0,
