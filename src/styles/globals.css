@@ -147,3 +147,17 @@ html, body { font-family: var(--ss-font-sans); }
   width: 1%;
   white-space: nowrap;
 }
+
+/* Screener toolbar */
+.ss-toolbar .form-label {
+  white-space: nowrap;
+}
+
+.ss-filter-chips-empty,
+.ss-summary {
+  color: #adb5bd;
+}
+
+.ss-chip {
+  line-height: 1.2;
+}

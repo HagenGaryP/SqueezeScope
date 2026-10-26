@@ -14,7 +14,8 @@ export function valuesFromParams(params: URLSearchParams): ScreenerValues {
     siMin: params.get('siMin') ?? '0',
     dtcMin: params.get('dtcMin') ?? '0',
     rvolMin: params.get('rvolMin') ?? '0',
-    catalyst: params.get('catalyst') === '1' ? 'true' : 'false',
+    // Pass a real boolean: z.coerce.boolean() would turn the string 'false' into true.
+    catalyst: params.get('catalyst') === '1',
     sort: (params.get('sort') ?? 'ticker') as SortKey,
     dir: (params.get('dir') ?? 'asc') as Dir,
   };

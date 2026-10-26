@@ -33,6 +33,8 @@ SqueezeScope is a stock screener for identifying potential short squeeze candida
   - Days to cover (short ratio)
   - Relative volume
   - Catalyst flag
+- Active filter chips: one-click removal per filter, plus "Clear all"
+- Summary strip: result count, current sort and direction, active filter count
 - Sortable table with sticky headers
 - Filter state is synced to the URL (shareable views)
 
