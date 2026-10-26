@@ -46,3 +46,15 @@ for (const { path, ready, table } of routes) {
     await expect(page.getByRole('heading', { level: 1 })).toHaveCount(1);
   });
 }
+
+test('direct load of the lazy ticker route renders without console warnings', async ({ page }) => {
+  const messages: string[] = [];
+  page.on('console', (m) => {
+    if (m.type() === 'warning' || m.type() === 'error') messages.push(m.text());
+  });
+  page.on('pageerror', (e) => messages.push(e.message));
+  await page.goto('/ticker/GME');
+  await expect(page.getByRole('heading', { level: 1, name: 'GME' })).toBeVisible();
+  await expect(page.locator('svg.recharts-surface')).toHaveCount(1);
+  expect(messages).toEqual([]);
+});
