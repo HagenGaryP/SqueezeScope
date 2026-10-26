@@ -106,7 +106,7 @@ export default function ScreenerPage() {
 
   return (
     <section aria-labelledby="screener-heading">
-      <h2 id="screener-heading" className="mb-3">Screener</h2>
+      <h1 id="screener-heading" className="h2 mb-3">Screener</h1>
 
       <Form className="ss-toolbar mb-2" noValidate onSubmit={(e) => e.preventDefault()}>
         <Row className="g-2 align-items-end">

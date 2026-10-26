@@ -77,12 +77,12 @@ export default function TickerDetailPage() {
       {/* Hero strip: ticker + key facts + watch toggle */}
       <div className="d-flex flex-wrap justify-content-between align-items-center mb-3">
         <Stack direction="horizontal" gap={3} className="flex-wrap">
-          <h2 id="ticker-heading" className="mb-0">
+          <h1 id="ticker-heading" className="h2 mb-0">
             {m.ticker}
-          </h2>
+          </h1>
 
           {typeof lastPrice === 'number' && (
-            <div className="text-secondary">${lastPrice.toFixed(2)}</div>
+            <div className="ss-muted">${lastPrice.toFixed(2)}</div>
           )}
 
           <Badge

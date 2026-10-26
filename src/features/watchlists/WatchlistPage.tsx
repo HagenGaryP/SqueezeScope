@@ -47,7 +47,7 @@ export default function WatchlistPage() {
   if (rows.length === 0) {
     return (
       <section className="container py-4" aria-labelledby="watchlist-heading">
-        <h2 id="watchlist-heading" className="mb-3">Watchlist</h2>
+        <h1 id="watchlist-heading" className="h2 mb-3">Watchlist</h1>
         <Alert variant="secondary" className="d-flex justify-content-between align-items-center">
           <span>Your watchlist is empty.</span>
           <Link to="/screener" className="btn btn-primary btn-sm">Go to Screener</Link>
@@ -59,7 +59,7 @@ export default function WatchlistPage() {
   return (
     <section className="container py-4" aria-labelledby="watchlist-heading">
       <div className="d-flex justify-content-between align-items-center mb-3">
-        <h2 id="watchlist-heading" className="mb-0">Watchlist</h2>
+        <h1 id="watchlist-heading" className="h2 mb-0">Watchlist</h1>
         <Badge bg="secondary" pill aria-label={`${rows.length} saved tickers`}>{rows.length}</Badge>
       </div>
 
