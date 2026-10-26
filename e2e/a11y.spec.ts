@@ -4,12 +4,14 @@ import AxeBuilder from '@axe-core/playwright';
 const WATCHLIST_KEY = 'squeezescope:watchlist';
 
 // Each route is checked once its main content has rendered.
-const routes: { path: string; ready: string }[] = [
+// `table` additionally waits for a data table, so a broken watchlist seed cannot
+// silently fall back to the empty state.
+const routes: { path: string; ready: string; table?: boolean }[] = [
   { path: '/', ready: 'Welcome' },
   { path: '/screener', ready: 'Screener' },
   { path: '/screener?siMin=10&catalyst=1&sort=dtc&dir=desc', ready: 'Screener' },
   { path: '/ticker/TNYA', ready: 'TNYA' },
-  { path: '/watchlists', ready: 'Watchlist' },
+  { path: '/watchlists', ready: 'Watchlist', table: true },
   { path: '/does-not-exist', ready: 'Page not found' },
 ];
 
@@ -21,10 +23,11 @@ test.beforeEach(async ({ page }) => {
   );
 });
 
-for (const { path, ready } of routes) {
+for (const { path, ready, table } of routes) {
   test(`no axe violations (WCAG 2.1 A/AA + best practice) on ${path}`, async ({ page }) => {
     await page.goto(path);
     await expect(page.getByRole('heading', { level: 1, name: ready })).toBeVisible();
+    if (table) await expect(page.getByRole('row')).toHaveCount(4); // header + 3 saved tickers
 
     const results = await new AxeBuilder({ page })
       .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'best-practice'])

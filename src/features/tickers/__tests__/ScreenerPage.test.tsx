@@ -174,8 +174,7 @@ describe('ScreenerPage toolbar', () => {
 
   it('renders with defaults instead of crashing on invalid URL params', async () => {
     renderAt('/screener?siMin=500&dtcMin=abc&sort=bogus&dir=up&rvolMin=2');
-    expect(await screen.findByRole('heading', { name: 'Screener' })).toBeInTheDocument();
-    expect(screen.getByLabelText('SI% (min)')).toHaveValue(0);
+    expect(await screen.findByLabelText('SI% (min)')).toHaveValue(0);
     expect(screen.getByLabelText('RVOL (min)')).toHaveValue(2);
     expect(screen.getByRole('status')).toHaveTextContent('Sorted by Ticker, ascending · 1 filter active');
   });

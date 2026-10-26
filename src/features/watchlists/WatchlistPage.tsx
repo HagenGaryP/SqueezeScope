@@ -28,26 +28,35 @@ export default function WatchlistPage() {
   const rows = allRows.filter(r => tickers.has(r.ticker));
 
 
+  // The page h1 renders in every state so loading/error views keep a heading.
+  const heading = <h1 id="watchlist-heading" className="h2 mb-3">Watchlist</h1>;
+
   if (isLoading) {
     return (
-      <div className="d-flex justify-content-center py-5">
-        <Spinner animation="border" role="status" aria-label="Loading watchlist…" />
-      </div>
+      <section className="container py-4" aria-labelledby="watchlist-heading">
+        {heading}
+        <div className="d-flex justify-content-center py-5">
+          <Spinner animation="border" role="status" aria-label="Loading watchlist…" />
+        </div>
+      </section>
     );
   }
 
   if (error) {
     return (
-      <Alert variant="danger" className="my-3">
-        Failed to load data. Try reloading.
-      </Alert>
+      <section className="container py-4" aria-labelledby="watchlist-heading">
+        {heading}
+        <Alert variant="danger" className="my-3">
+          Failed to load data. Try reloading.
+        </Alert>
+      </section>
     );
   }
 
   if (rows.length === 0) {
     return (
       <section className="container py-4" aria-labelledby="watchlist-heading">
-        <h1 id="watchlist-heading" className="h2 mb-3">Watchlist</h1>
+        {heading}
         <Alert variant="secondary" className="d-flex justify-content-between align-items-center">
           <span>Your watchlist is empty.</span>
           <Link to="/screener" className="btn btn-primary btn-sm">Go to Screener</Link>
