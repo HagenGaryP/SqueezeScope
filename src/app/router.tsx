@@ -1,6 +1,6 @@
 import { createBrowserRouter } from 'react-router-dom'
 import AppShell from '../components/Layout/AppShell'
-import ErrorFallback from '../pages/ErrorFallback'
+import RouteErrorFallback from '../pages/RouteErrorFallback'
 import { RouteFallback } from '../components/ui/RouteFallback'
 import HomePage from '../pages/HomePage'
 import ScreenerPage from '../features/tickers/ScreenerPage'
@@ -11,7 +11,7 @@ export const router = createBrowserRouter([
   {
     path: '/',
     element: <AppShell />,
-    errorElement: <ErrorFallback />,
+    errorElement: <RouteErrorFallback />,
     // Rendered until lazy route code (ticker detail) has loaded on a direct visit.
     hydrateFallbackElement: <RouteFallback />,
     children: [
