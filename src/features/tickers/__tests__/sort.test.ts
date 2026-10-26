@@ -76,3 +76,38 @@ describe('sortRows', () => {
     expect(out).not.toBe(original);
   });
 });
+
+describe('sortRows edge cases', () => {
+  it('returns a copy for empty and single-row input', () => {
+    const empty: TickerRow[] = [];
+    const one = [makeTickerRow({ ticker: 'ONE' })];
+    expect(sortRows(empty, 'price', 'asc')).toEqual([]);
+    expect(sortRows(empty, 'price', 'asc')).not.toBe(empty);
+    expect(sortRows(one, 'squeezeScore', 'desc')).toEqual(one);
+    expect(sortRows(one, 'squeezeScore', 'desc')).not.toBe(one);
+  });
+
+  it('keeps input order for ties on numeric keys in both directions', () => {
+    const rows = [
+      makeTickerRow({ ticker: 'B', dtc: 2 }),
+      makeTickerRow({ ticker: 'A', dtc: 2 }),
+      makeTickerRow({ ticker: 'C', dtc: 1 }),
+    ];
+    expect(sortRows(rows, 'dtc', 'asc').map((r) => r.ticker)).toEqual(['C', 'B', 'A']);
+    expect(sortRows(rows, 'dtc', 'desc').map((r) => r.ticker)).toEqual(['B', 'A', 'C']);
+  });
+
+  it.each(['siPublic', 'siBroad', 'dtc', 'rvol'] as const)('sorts %s descending', (key) => {
+    const rows = [1, 3, 2].map((v, i) => makeTickerRow({ ticker: `T${i}`, [key]: v }));
+    expect(sortRows(rows, key, 'desc').map((r) => r[key])).toEqual([3, 2, 1]);
+  });
+
+  it('sorts negative percent changes below positives', () => {
+    const rows = [
+      makeTickerRow({ ticker: 'UP', pctChange: 1.5 }),
+      makeTickerRow({ ticker: 'DOWN', pctChange: -12.3 }),
+      makeTickerRow({ ticker: 'FLAT', pctChange: 0 }),
+    ];
+    expect(sortRows(rows, 'pctChange', 'asc').map((r) => r.ticker)).toEqual(['DOWN', 'FLAT', 'UP']);
+  });
+});
