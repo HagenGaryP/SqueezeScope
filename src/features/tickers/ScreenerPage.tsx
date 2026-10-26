@@ -71,19 +71,13 @@ export default function ScreenerPage() {
   // derived table data (filter + sort via pure helpers)
   const watched = form.watch();
 
+  // form.watch() returns a new object on every call, so depend on the individual
+  // values; otherwise the memo misses on every render (including URL-sync renders).
+  const { q, siMin, dtcMin, rvolMin, catalyst, sort, dir } = watched;
   const tableRows: TickerRow[] = React.useMemo(() => {
-    const base = data ?? [];
-
-    const filtered = filterRows(base, {
-      q: watched.q,
-      siMin: watched.siMin,
-      dtcMin: watched.dtcMin,
-      rvolMin: watched.rvolMin,
-      catalyst: watched.catalyst,
-    });
-
-    return sortRows(filtered, watched.sort as SortKeyForSort, watched.dir);
-  }, [data, watched]);
+    const filtered = filterRows(data ?? [], { q, siMin, dtcMin, rvolMin, catalyst });
+    return sortRows(filtered, sort as SortKeyForSort, dir);
+  }, [data, q, siMin, dtcMin, rvolMin, catalyst, sort, dir]);
 
   const activeFilters = getActiveFilters(watched);
 

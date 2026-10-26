@@ -51,14 +51,13 @@ export function sortRows(
   if (rows.length <= 1) return rows.slice();
 
   if (key === "squeezeScore") {
-    // Sort by computed SqueezeScore (0–100), high to low or low to high.
-    return [...rows].sort((a, b) => {
-      const aScore = computeSqueezeScore(a);
-      const bScore = computeSqueezeScore(b);
-
-      if (aScore === bScore) return 0;
-      return dir === "asc" ? aScore - bScore : bScore - aScore;
-    });
+    // Score each row once (not per comparison), sort the pairs, then unwrap.
+    // Array.prototype.sort is stable, so equal scores keep input order.
+    const factor = orderFactor(dir);
+    return rows
+      .map((row) => ({ row, score: computeSqueezeScore(row) }))
+      .sort((a, b) => (a.score - b.score) * factor)
+      .map(({ row }) => row);
   }
 
   return [...rows].sort(
