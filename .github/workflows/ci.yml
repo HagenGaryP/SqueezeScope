@@ -43,8 +43,12 @@ jobs:
       - name: Lint
         run: npm run lint
 
+      # Strict app + node configs; the root tsconfig.json is not strict.
       - name: Typecheck
-        run: npx tsc --noEmit
+        run: npm run typecheck
+
+      - name: Test
+        run: npm run test:run
 
       - name: Build
         run: npm run build
