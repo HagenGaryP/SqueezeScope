@@ -11,13 +11,14 @@ export default function ErrorFallback({ error, onReset }: Props) {
   const message = (error && (error.message || String(error))) || 'An unexpected error occurred.';
 
   return (
-    <main role="main" aria-labelledby="error-title">
+    // Rendered outside AppShell (root errorElement / top-level ErrorBoundary), so it owns <main>.
+    <main aria-labelledby="error-title">
       <Container className="py-5">
         <Stack gap={3} className="text-center align-items-center" aria-live="polite">
           <h1 id="error-title" className="display-6 m-0">
             Something went wrong
           </h1>
-          <p className="text-muted m-0">
+          <p className="ss-muted m-0">
             {message}
           </p>
 

@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import { useParams } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { fetchTickerMetrics } from './client';
@@ -36,16 +37,25 @@ export default function TickerDetailPage() {
     retry: false,
   });
 
+  // Loading/error/empty views keep a page h1 (the requested symbol).
+  const statusView = (title: string, body: ReactNode) => (
+    <section className="container py-4" aria-labelledby="ticker-heading">
+      <h1 id="ticker-heading" className="h2 mb-3">{title}</h1>
+      {body}
+    </section>
+  );
+
   if (!symbol) {
-    return <Alert variant="warning">No symbol provided.</Alert>;
+    return statusView('Ticker', <Alert variant="warning">No symbol provided.</Alert>);
   }
 
   if (isLoading) {
-    return <Spinner animation="border" role="status" aria-label="Loading…" />;
+    return statusView(symbol, <Spinner animation="border" role="status" aria-label="Loading…" />);
   }
 
   if (error || !hasMetrics(data)) {
-    return (
+    return statusView(
+      symbol,
       <Alert variant="secondary">
         No data found for <strong>{symbol}</strong>.
       </Alert>
@@ -77,12 +87,12 @@ export default function TickerDetailPage() {
       {/* Hero strip: ticker + key facts + watch toggle */}
       <div className="d-flex flex-wrap justify-content-between align-items-center mb-3">
         <Stack direction="horizontal" gap={3} className="flex-wrap">
-          <h2 id="ticker-heading" className="mb-0">
+          <h1 id="ticker-heading" className="h2 mb-0">
             {m.ticker}
-          </h2>
+          </h1>
 
           {typeof lastPrice === 'number' && (
-            <div className="text-secondary">${lastPrice.toFixed(2)}</div>
+            <div className="ss-muted">${lastPrice.toFixed(2)}</div>
           )}
 
           <Badge

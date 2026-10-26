@@ -87,26 +87,35 @@ export default function ScreenerPage() {
 
   const activeFilters = getActiveFilters(watched);
 
+  // The page h1 renders in every state so loading/error views keep a heading.
+  const heading = <h1 id="screener-heading" className="h2 mb-3">Screener</h1>;
+
   // UI states
   if (isLoading) {
     return (
-      <div className="d-flex justify-content-center align-items-center" style={{ minHeight: 240 }}>
-        <Spinner role="status" aria-label="Loading tickers…" />
-      </div>
+      <section aria-labelledby="screener-heading">
+        {heading}
+        <div className="d-flex justify-content-center align-items-center" style={{ minHeight: 240 }}>
+          <Spinner role="status" aria-label="Loading tickers…" />
+        </div>
+      </section>
     );
   }
 
   if (error) {
     return (
-      <Alert variant="danger" className="mt-3" role="alert">
-        Failed to load tickers. Please retry.
-      </Alert>
+      <section aria-labelledby="screener-heading">
+        {heading}
+        <Alert variant="danger" className="mt-3" role="alert">
+          Failed to load tickers. Please retry.
+        </Alert>
+      </section>
     );
   }
 
   return (
     <section aria-labelledby="screener-heading">
-      <h2 id="screener-heading" className="mb-3">Screener</h2>
+      {heading}
 
       <Form className="ss-toolbar mb-2" noValidate onSubmit={(e) => e.preventDefault()}>
         <Row className="g-2 align-items-end">

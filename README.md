@@ -132,6 +132,7 @@ Vite will print the local URL in the terminal (default: `http://localhost:5173`)
 npm test
 npm run lint
 npm run build
+npm run test:a11y   # axe checks in Chromium against the build (run after build)
 npm run preview
 ```
 
