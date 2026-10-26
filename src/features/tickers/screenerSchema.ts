@@ -49,3 +49,30 @@ export const ScreenerFormSchema = z.object({
 });
 
 export type ScreenerValues = z.infer<typeof ScreenerFormSchema>;
+
+/** Default screener state (matches the defaults in ScreenerInputSchema). */
+export const SCREENER_DEFAULTS: ScreenerValues = {
+  q: "",
+  siMin: 0,
+  dtcMin: 0,
+  rvolMin: 0,
+  catalyst: false,
+  sort: "ticker",
+  dir: "asc",
+};
+
+/** Form fields that narrow the result set (sort/dir only reorder it). */
+export const filterKeys = ["q", "siMin", "dtcMin", "rvolMin", "catalyst"] as const;
+export type FilterKey = (typeof filterKeys)[number];
+
+/** Human-readable sort labels, shared by the sort select and the summary strip. */
+export const SORT_LABELS: Record<SortKey, string> = {
+  ticker: "Ticker",
+  siPublic: "SI% Public",
+  siBroad: "SI% Broad",
+  rvol: "RVOL",
+  dtc: "DTC",
+  squeezeScore: "Squeeze Score",
+  pctChange: "% Change",
+  price: "Price",
+};

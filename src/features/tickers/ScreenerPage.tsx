@@ -7,14 +7,22 @@ import { Form, Row, Col, Spinner, Button, Alert } from 'react-bootstrap';
 
 import type { TickerRow } from '../../lib/types';
 import ScreenerTable from './components/ScreenerTable';
+import ActiveFilterChips from './components/ActiveFilterChips';
+import ScreenerSummary from './components/ScreenerSummary';
 
 import {
   ScreenerFormSchema,
+  SCREENER_DEFAULTS,
+  SORT_LABELS,
+  filterKeys,
+  sortKeys,
+  type FilterKey,
   type ScreenerValues,
   type SortKey,
 } from './screenerSchema';
 
 import { filterRows } from './filter';
+import { getActiveFilters } from './activeFilters';
 import { sortRows, type SortKey as SortKeyForSort } from './sort';
 import { valuesFromParams, useScreenerUrlSync } from './urlState';
 import { TICKERS_QUERY_KEY } from './query';
@@ -48,6 +56,18 @@ export default function ScreenerPage() {
     }
   }, [form]);
 
+  // Chip removal / Clear all go through setValue so the existing watch-based URL sync runs.
+  const resetFilter = React.useCallback((key: FilterKey) => {
+    form.setValue(key, SCREENER_DEFAULTS[key]);
+  }, [form]);
+
+  const clearAllFilters = React.useCallback(() => {
+    for (const key of filterKeys) form.setValue(key, SCREENER_DEFAULTS[key]);
+    form.setFocus('q');
+  }, [form]);
+
+  const focusSearch = React.useCallback(() => form.setFocus('q'), [form]);
+
   // derived table data (filter + sort via pure helpers)
   const watched = form.watch();
 
@@ -64,6 +84,8 @@ export default function ScreenerPage() {
 
     return sortRows(filtered, watched.sort as SortKeyForSort, watched.dir);
   }, [data, watched]);
+
+  const activeFilters = getActiveFilters(watched);
 
   // UI states
   if (isLoading) {
@@ -86,11 +108,12 @@ export default function ScreenerPage() {
     <section aria-labelledby="screener-heading">
       <h2 id="screener-heading" className="mb-3">Screener</h2>
 
-      <Form className="mb-3" noValidate onSubmit={(e) => e.preventDefault()}>
+      <Form className="ss-toolbar mb-2" noValidate onSubmit={(e) => e.preventDefault()}>
         <Row className="g-2 align-items-end">
-          <Form.Group as={Col} xs={12} md={4} controlId="q">
-            <Form.Label>Search</Form.Label>
+          <Form.Group as={Col} xs={12} sm={6} lg={3} controlId="q">
+            <Form.Label className="small mb-1">Search</Form.Label>
             <Form.Control
+              size="sm"
               placeholder="Ticker…"
               inputMode="search"
               autoCapitalize="characters"
@@ -98,9 +121,10 @@ export default function ScreenerPage() {
             />
           </Form.Group>
 
-          <Form.Group as={Col} xs={6} md={2} controlId="siMin">
-            <Form.Label>SI% (min)</Form.Label>
+          <Form.Group as={Col} xs={4} sm={2} lg={1} className="ss-toolbar-num" controlId="siMin">
+            <Form.Label className="small mb-1">SI% (min)</Form.Label>
             <Form.Control
+              size="sm"
               type="number"
               step={1}
               min={0}
@@ -109,9 +133,10 @@ export default function ScreenerPage() {
             />
           </Form.Group>
 
-          <Form.Group as={Col} xs={6} md={2} controlId="dtcMin">
-            <Form.Label>DTC (min)</Form.Label>
+          <Form.Group as={Col} xs={4} sm={2} lg={1} className="ss-toolbar-num" controlId="dtcMin">
+            <Form.Label className="small mb-1">DTC (min)</Form.Label>
             <Form.Control
+              size="sm"
               type="number"
               step={0.1}
               min={0}
@@ -120,9 +145,10 @@ export default function ScreenerPage() {
             />
           </Form.Group>
 
-          <Form.Group as={Col} xs={6} md={2} controlId="rvolMin">
-            <Form.Label>RVOL (min)</Form.Label>
+          <Form.Group as={Col} xs={4} sm={2} lg={1} className="ss-toolbar-num" controlId="rvolMin">
+            <Form.Label className="small mb-1">RVOL (min)</Form.Label>
             <Form.Control
+              size="sm"
               type="number"
               step={0.1}
               min={0}
@@ -131,7 +157,7 @@ export default function ScreenerPage() {
             />
           </Form.Group>
 
-          <Form.Group as={Col} xs={6} md="auto" controlId="catalyst" className="ms-md-auto d-flex align-items-end">
+          <Form.Group as={Col} xs={12} sm="auto" controlId="catalyst" className="d-flex align-items-end">
             <Form.Check
               type="checkbox"
               label="Catalyst"
@@ -139,27 +165,30 @@ export default function ScreenerPage() {
               {...form.register('catalyst')}
             />
           </Form.Group>
-          </Row>
+        </Row>
 
-          <Row className="g-2 align-items-end mt-1">
-          <Form.Group as={Col} xs={12} md={3} controlId="sort">
-            <Form.Label>Sort</Form.Label>
-            <Form.Select {...form.register('sort')}>
-              <option value="ticker">Ticker</option>
-              <option value="siPublic">SI% Public</option>
-              <option value="siBroad">SI% Broad</option>
-              <option value="rvol">RVOL</option>
-              <option value="dtc">DTC</option>
-              <option value="squeezeScore">Squeeze Score</option>
-              <option value="pctChange">% Change</option>
-              <option value="price">Price</option>
+        <div className="mt-2">
+          <ActiveFilterChips
+            filters={activeFilters}
+            onRemove={resetFilter}
+            onClearAll={clearAllFilters}
+            onAllRemoved={focusSearch}
+          />
+        </div>
+
+        <Row className="g-2 align-items-end mt-1">
+          <Form.Group as={Col} xs={12} sm={6} lg={3} controlId="sort">
+            <Form.Label className="small mb-1">Sort</Form.Label>
+            <Form.Select size="sm" {...form.register('sort')}>
+              {sortKeys.map((key) => (
+                <option key={key} value={key}>{SORT_LABELS[key]}</option>
+              ))}
             </Form.Select>
           </Form.Group>
 
-
-          <Col xs={12} md="auto" className="ms-md-auto">
-            <Form.Label>Sort Direction</Form.Label>
-            <div>
+          <Col xs={12} sm="auto">
+            <span id="sort-dir-label" className="form-label small mb-1 d-block">Sort Direction</span>
+            <div role="group" aria-labelledby="sort-dir-label">
               <Button
                 type="button"
                 variant={watched.dir === 'asc' ? 'primary' : 'secondary'}
@@ -183,6 +212,14 @@ export default function ScreenerPage() {
           </Col>
         </Row>
       </Form>
+
+      <ScreenerSummary
+        shown={tableRows.length}
+        total={data?.length ?? 0}
+        sort={watched.sort}
+        dir={watched.dir}
+        activeFilterCount={activeFilters.length}
+      />
 
       <ScreenerTable
         rows={tableRows}
