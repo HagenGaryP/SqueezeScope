@@ -41,7 +41,7 @@ describe('sortRows by squeezeScore', () => {
     expect(sortRows(rows, 'squeezeScore', 'desc').map((r) => r.ticker)).toEqual(['A', 'B', 'C']);
   });
 
-  it('matches a reference sort on a large input and does not mutate it', () => {
+  it('returns non-increasing scores on a large input and does not mutate it', () => {
     const rows = makeRows(500);
     const before = rows.slice();
     const out = sortRows(rows, 'squeezeScore', 'desc');
