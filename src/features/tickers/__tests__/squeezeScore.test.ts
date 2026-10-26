@@ -133,15 +133,18 @@ describe("computeSqueezeScoreFromMetrics", () => {
     series: [],
   };
 
-  it("uses SI and DTC from metrics with neutral RVOL (1) and no catalyst", () => {
+  // Current behaviour: RVOL is treated as neutral (1) even though metrics carry rvol30d.
+  // Whether rvol30d should feed the score is an open maintainer decision (see #53);
+  // update this test if that changes.
+  it("uses SI and DTC from metrics with neutral RVOL (1) and no catalyst (current behaviour)", () => {
     const expected = computeSqueezeScore(
       makeRow({ siPublic: 25, siBroad: 25, dtc: 5, rvol: 1, catalyst: false })
     );
     expect(computeSqueezeScoreFromMetrics(metrics)).toBeCloseTo(expected);
   });
 
-  it("ignores the stored squeezeScore and rvol30d fields", () => {
-    expect(computeSqueezeScoreFromMetrics({ ...metrics, squeezeScore: 0, rvol30d: 0 })).toBeCloseTo(
+  it("ignores the stored squeezeScore field", () => {
+    expect(computeSqueezeScoreFromMetrics({ ...metrics, squeezeScore: 0 })).toBeCloseTo(
       computeSqueezeScoreFromMetrics(metrics)
     );
   });
