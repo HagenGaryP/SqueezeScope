@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { Table, Badge, Button } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import type { TickerRow } from '../../../lib/types';
@@ -49,6 +50,8 @@ const COLUMNS: ReadonlyArray<{ label: string; col: SortKey }> = [
 
 export default function ScreenerTable({ rows, activeSort, dir, onSort }: Props) {
   const { add, remove, has } = useWatchlist();
+  // Score once per rows array; watchlist toggles re-render the table without new rows.
+  const scores = useMemo(() => rows.map((r) => computeSqueezeScore(r)), [rows]);
 
   return (
     <Table
@@ -87,7 +90,7 @@ export default function ScreenerTable({ rows, activeSort, dir, onSort }: Props) 
       <tbody>
         {/* Note: rows are assumed normalized and typed upstream.
             Keep row rendering straightforward and side-effect free. */}
-        {rows.map(r => {
+        {rows.map((r, i) => {
           const tracked = has(r.ticker);
 
           return (
@@ -109,7 +112,7 @@ export default function ScreenerTable({ rows, activeSort, dir, onSort }: Props) 
               <td>{formatPercent1(r.siBroad)}</td>
               <td>{formatOneDecimal(r.dtc)}</td>
               <td>{formatOneDecimal(r.rvol)}</td>
-              <td>{formatScore(computeSqueezeScore(r))}</td>
+              <td>{formatScore(scores[i])}</td>
 
               {/* Catalyst: use a badge for quick scanning; fallback em dash when false. */}
               <td>{r.catalyst ? <Badge bg="warning" text="dark">Yes</Badge> : '—'}</td>
