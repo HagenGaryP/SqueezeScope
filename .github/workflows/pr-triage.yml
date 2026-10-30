@@ -1,0 +1,38 @@
+name: PR triage
+
+# Assigns the PR author and adds the "type: <type>" label named by the branch prefix
+# (<type>/<issue>-<slug>, see CONTRIBUTING.md). scripts/protect-main.sh creates the labels.
+# Bot and fork PRs are skipped: a fork's token cannot edit the PR.
+
+on:
+  pull_request:
+    types: [opened, reopened]
+
+permissions: {}
+
+jobs:
+  triage:
+    name: PR triage
+    if: github.event.pull_request.user.type != 'Bot' && github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      issues: write
+      pull-requests: write
+    steps:
+      - name: Assign the author and label the change type
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          AUTHOR: ${{ github.event.pull_request.user.login }}
+          HEAD_REF: ${{ github.event.pull_request.head.ref }}
+        run: |
+          gh pr edit "$PR_NUMBER" --repo "$REPO" --add-assignee "$AUTHOR"
+          type="${HEAD_REF%%/*}"
+          case "$type" in
+            feat|fix|chore|refactor|docs|test|ci|perf)
+              gh pr edit "$PR_NUMBER" --repo "$REPO" --add-label "type: $type" ;;
+            *)
+              echo "Branch has no known type prefix; no label added." ;;
+          esac

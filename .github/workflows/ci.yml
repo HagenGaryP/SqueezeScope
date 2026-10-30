@@ -59,3 +59,21 @@ jobs:
       # axe-core accessibility checks against the production build (vite preview).
       - name: Accessibility (axe)
         run: npm run test:a11y
+
+  script-tests:
+    # Required status check: keep this name.
+    name: Script tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+      - name: Unit tests for the CI scripts
+        run: node --test '.github/scripts/*.test.mjs'
+      - name: Lint shell scripts
+        # ShellCheck is preinstalled on GitHub's Ubuntu runners.
+        run: shellcheck scripts/*.sh

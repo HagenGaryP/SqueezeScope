@@ -9,7 +9,7 @@ export default defineConfig({
     globals: true,
     setupFiles: 'src/test/setup.ts',
     css: true,
-    // Playwright browser specs live in e2e/ and run via `npm run test:a11y`.
-    exclude: [...configDefaults.exclude, 'e2e/**'],
+    // Playwright specs in e2e/ run via `npm run test:a11y`; .github/scripts tests use node:test.
+    exclude: [...configDefaults.exclude, 'e2e/**', '.github/**'],
   }
 });
