@@ -1,0 +1,33 @@
+name: PR conventions
+
+# Checks the PR title, branch name and description against CONTRIBUTING.md.
+# Bot authors (Dependabot included) pass with a "skipped" message.
+
+on:
+  pull_request:
+    types: [opened, edited, reopened, synchronize]
+
+permissions:
+  contents: read
+
+jobs:
+  pr-conventions:
+    # Required status check: keep this name.
+    name: PR conventions
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+      - name: Check title, branch name and description
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          PR_BODY: ${{ github.event.pull_request.body }}
+          PR_HEAD_REF: ${{ github.event.pull_request.head.ref }}
+          PR_AUTHOR_TYPE: ${{ github.event.pull_request.user.type }}
+          PR_AUTHOR_LOGIN: ${{ github.event.pull_request.user.login }}
+        run: node .github/scripts/check-pr-body.mjs

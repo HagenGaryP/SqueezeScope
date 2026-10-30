@@ -1,0 +1,41 @@
+name: Public text
+
+# Fails when the PR title, body, a commit message, or any added line or new file name matches the regular expression
+# kept in the PUBLIC_TEXT_DENYLIST repository secret. Fails closed when the secret is missing or
+# invalid. Only locations are printed, never the matched text or the pattern.
+# See docs/decisions/0001-public-text-gate.md.
+
+on:
+  pull_request:
+    types: [opened, edited, reopened, synchronize]
+
+permissions: {}
+
+jobs:
+  public-text:
+    # Required status check: keep this name.
+    name: Public text gate
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      # The current title and body are read from the API at run time (re-runs reuse the event).
+      pull-requests: read
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          # Full history, so the diff from the base commit to the head commit can be computed.
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+      - name: Scan the PR title, body, commit messages and added lines
+        env:
+          PUBLIC_TEXT_DENYLIST: ${{ secrets.PUBLIC_TEXT_DENYLIST }}
+          GITHUB_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: node .github/scripts/check-public-text.mjs
