@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import { createMemoryRouter, RouterProvider } from 'react-router-dom';
 import { CHUNK_RELOAD_KEY, isChunkLoadError, reloadedRecently } from '../chunkReload';
 import RouteErrorFallback from '../../pages/RouteErrorFallback';
@@ -60,7 +60,8 @@ describe('RouteErrorFallback', () => {
   it('reloads once on a chunk load error and shows the loading state', async () => {
     renderWithError(chunkError());
     expect(await screen.findByRole('status', { name: 'Loading page…' })).toBeInTheDocument();
-    expect(reload).toHaveBeenCalledTimes(1);
+    // The reload runs in a passive effect after the spinner commits, so wait for it.
+    await waitFor(() => expect(reload).toHaveBeenCalledTimes(1));
     expect(Number(sessionStorage.getItem(CHUNK_RELOAD_KEY))).toBeGreaterThan(0);
   });
 
