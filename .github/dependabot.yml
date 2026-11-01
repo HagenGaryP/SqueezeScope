@@ -19,6 +19,11 @@ updates:
       # PR titles become "chore(deps): bump ...", a Conventional Commit subject.
       prefix: chore
       include: scope
+    ignore:
+      # typescript-eslint peers on typescript <6.1; hold TypeScript 7 out until
+      # it supports it (https://github.com/HagenGaryP/SqueezeScope/issues/71).
+      - dependency-name: typescript
+        update-types: ['version-update:semver-major']
     groups:
       npm:
         patterns: ['*']
