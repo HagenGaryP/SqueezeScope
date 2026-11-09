@@ -15,7 +15,7 @@ jobs:
   public-text:
     # Required status check: keep this name.
     name: Public text gate
-    runs-on: ubuntu-latest
+    runs-on: ${{ fromJSON(!github.event.pull_request.head.repo.fork && vars.CI_RUNS_ON || '"ubuntu-latest"') }}
     timeout-minutes: 10
     permissions:
       contents: read
